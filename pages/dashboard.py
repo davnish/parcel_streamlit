@@ -5,11 +5,92 @@ import numpy as np
 import geopandas as gpd
 import folium
 from branca.colormap import linear
+import branca.colormap as cm
 
 st.title('AgronomIQ')
 
 if 'button_clicked' not in st.session_state:
     st.session_state['button_clicked'] = False
+
+def style_function_point(feature):
+    props = feature.get('properties')
+    markup = f"""
+        <a href="{props.get('url')}">
+            <div style="font-size: 0.8em;">
+            <div style="width: 10px;
+                        height: 10px;
+                        border: 1px solid black;
+                        border-radius: 5px;
+                        background-color: orange;">
+            </div>
+            {props.get('name')}
+        </div>
+        </a>
+    """
+    return {"html": markup}
+
+
+# This function is for read parcel amp
+# @st.cache_resource
+def read_parcel_map(path, _m):
+    gdf = gpd.read_file(path)
+
+    gdf_idx = gdf['khasra_uni']
+    # gdf.set_index('khasra_uni')
+
+    colormap = cm.LinearColormap(["blue", "green", "yellow", "red"], vmin=gdf_idx.min(), vmax=gdf_idx.max())
+
+    color_dict = {key: colormap(key) for key in gdf_idx.unique()}
+    color_dict = {key: color_dict[gdf_idx[key]] for key in gdf_idx.keys()}
+    # print(np.unique([val for val in color_dict.values()]))
+
+    style_function=lambda feature: {
+        "fillColor": color_dict[int(feature['id'])],
+        "color": "black",
+        "weight": 1,
+        "fillOpacity": 0.5,
+    }
+    folium.GeoJson(gdf, zoom_on_click=True, highlight_function=lambda x: {'weight': 3, 'color': 'red'}, name = "parcel_map",
+            tooltip=folium.GeoJsonTooltip(fields=["KHASRA"], aliases=["KHASRA"]),
+                popup=folium.GeoJsonPopup(fields=["TEHSIL", 'Area (in h'], aliases=["Tehsil", 'area_hecta']),
+                style_function=style_function
+                ).add_to(_m)
+    
+    return _m
+
+# This function is for reading point data
+def read_point_data(path, m):
+    gdf_point = gpd.read_file(path)
+
+    # Reading Point Data
+    folium.GeoJson(
+    gdf_point,
+    name="Info",
+    marker=folium.Marker(icon=folium.DivIcon()),
+    tooltip=folium.GeoJsonTooltip(fields=["KHASRA"]),
+    popup=folium.GeoJsonPopup(fields=["KHASRA"]),
+    style_function=style_function_point,
+    zoom_on_click=True,
+    ).add_to(m)
+
+
+def get_map(path):
+    gdf = gpd.read_file(path)
+
+    # Showing ESRI Satellite Imagery
+    tile = folium.TileLayer(
+            tiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            attr = 'Esri',
+            name = 'Esri Satellite',
+            overlay = False,
+            control = True
+        )
+    
+    m = folium.Map(location=[gdf.geometry.centroid.y.mean(), gdf.geometry.centroid.x.mean()], zoom_start=16, tiles=tile)
+    m = read_parcel_map(path, m)
+
+    folium.LayerControl().add_to(m)
+    st_data = st_folium(m, width=700, )
 
 # Making selectbox
 c1, c2, c3 = st.columns(3)
@@ -39,45 +120,14 @@ if search:
 
 if st.session_state['button_clicked']:
 
-    path = 'gdf.shp'
-    # st_data = st_folium(path width=700, )
+    path = r"D:\projects\parcel_streamlit\vidisha\Combined_crop_map.shp"
 
     # Making visualization of the village
+    get_map(path)
 
-    gdf = gpd.read_file(path)
-    print(gdf['KHASRA'])
 
-    colormap = linear.Paired_10.scale(0, 1587)
-    # gdf['sr'] = np.arange(0, 980)
-    # gdf = gdf.set_index('sr')
-    gdf_idx = gdf['KHASRA']
-    color_dict = {key: colormap(gdf_idx[key]) for key in gdf_idx.keys()}
+    # Making Claims Graphs
 
-    # Showing ESRI Satellite Imagery
-    tile = folium.TileLayer(
-            tiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-            attr = 'Esri',
-            name = 'Esri Satellite',
-            overlay = False,
-            control = True
-        )
-    
-    style_function=lambda feature: {
-        "fillColor": color_dict[int(feature["id"])],
-        "color": "black",
-        "weight": 1,
-        "fillOpacity": 0.3,
-    }
-    
-    m = folium.Map(location=[gdf.geometry.centroid.y.mean(), gdf.geometry.centroid.x.mean()], zoom_start=16, tiles=tile)
-    folium.GeoJson(gdf, zoom_on_click=True, highlight_function=lambda x: {'weight': 3, 'color': 'red'},
-                tooltip=folium.GeoJsonTooltip(fields=["KHASRA"], aliases=["KHASRA"]),
-                    popup=folium.GeoJsonPopup(fields=["TAHSIL", 'area_hecta'], aliases=["TEHSIL", 'area_hecta']),
-                    style_function=style_function
-                    ).add_to(m)
-
-    folium.LayerControl().add_to(m)
-    st_data = st_folium(m, width=700, )
 
 
 
