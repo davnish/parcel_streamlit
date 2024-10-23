@@ -56,10 +56,10 @@ def read_parcel_map(path, _m, year):
 
     # colormap = cm.LinearColormap(["blue", "yellow", "red"], vmin=0, vmax=len(gdf_idx.unique()))
     if len(gdf_idx.unique()) == 4: 
-        colors = ["blue", "green", "yellow", "red"]
+        colors = ["blue", "black", "yellow", "red"]
     else:
         colors = ["blue", "yellow", "red"]
-        
+
     colormap = cm.StepColormap(colors, vmin=0, vmax=len(gdf_idx.unique()), caption="Crop Type")
     _m.add_child(colormap)
 
@@ -86,6 +86,7 @@ def read_parcel_map(path, _m, year):
 def get_map(path, year):
     gdf = gpd.read_file(path)
 
+
     # Showing ESRI Satellite Imagery
     tile = folium.TileLayer(
             tiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -106,6 +107,8 @@ def get_map(path, year):
 
     folium.LayerControl().add_to(m)
     st_data = st_folium(m, width=700, )
+    if st.checkbox('Show Table: '):
+        st.table(gdf.loc[:, ['khasranum_', '2022_Crop', '2024_Crop']])
 
 # Making selectbox
 c1, c2, c3, c4 = st.columns(4)
@@ -127,7 +130,7 @@ else:
 
 with c2: district = st.selectbox("Select your District:", district)
 with c3: village = st.selectbox("Select your Village:", village)
-with c4: year = st.selectbox("Select your Year", ["2022", "2023", "2024"])
+with c4: year = st.selectbox("Select your Year", ["2022", "2024"])
 
 search = st.button('Search')
 
@@ -143,7 +146,7 @@ if st.session_state['button_clicked']:
     elif district == 'Bhiwani':
         path = os.path.join(path, 'bhiwani', 'Final_Bhiwani_village_Bhiwani.shp')
     else:
-        path = os.path.join(path, 'vidisha', 'Combined_crop_map.shp')
+        path = os.path.join(path, 'vidisha', 'vidisha_croptype_final.shp')
     # Making visualization of the village
     get_map(path, year)
 
