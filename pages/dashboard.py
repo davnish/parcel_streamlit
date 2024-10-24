@@ -124,8 +124,7 @@ if st.session_state['button_clicked']:
 
     # Making visualization of the village
     get_map(path)
-
-
+    
     # Making Claims Graphs
 
 

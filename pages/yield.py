@@ -6,54 +6,16 @@ import geopandas as gpd
 import folium
 from branca.colormap import linear
 import branca.colormap as cm
+from branca.element import MacroElement, Template
 import os
 
 st.title('AgronomIQ')
 if 'button_clicked' not in st.session_state:
     st.session_state['button_clicked'] = False
 
-custom_ticks = {0: "Low", 1: "Moderate", 2: "High"}
-
-
-def custom_colormap_labels(colormap, custom_labels):
-    html = colormap._repr_html_()
-
-    for tick, label in custom_labels.items():
-        html = html.replace(f">{tick}<", f">{label}<")
-
-    return html
-
-def style_function_point(feature):
-    props = feature.get('properties')
-    markup = f"""
-        <a href="{props.get('url')}">
-            <div style="font-size: 0.8em;">
-            <div style="width: 10px;
-                        height: 10px;
-                        border: 1px solid black;
-                        border-radius: 5px;
-                        background-color: orange;">
-            </div>
-            {props.get('name')}
-        </div>
-        </a>
-    """
-    return {"html": markup}
-
-# This function is for reading point data
-def read_point_data(path, m):
-    gdf_point = gpd.read_file(path)
-
-    # Reading Point Data
-    folium.GeoJson(
-    gdf_point,
-    name="Info",
-    marker=folium.Marker(icon=folium.DivIcon()),
-    tooltip=folium.GeoJsonTooltip(fields=["Yield_str"]),
-    popup=folium.GeoJsonPopup(fields=["Yield_cate", "Yield_str", "mean_q/ha"]),
-    style_function=style_function_point,
-    zoom_on_click=True,
-    ).add_to(m)
+logo_path = r"C:\Users\AH-Nischal-Singh\Downloads\image-removebg-preview (1).png"
+sidebar_path = r"C:\Users\AH-Nischal-Singh\Downloads\image-removebg-preview (2).png"
+st.logo(sidebar_path, icon_image=logo_path, size='large')
 
 # This function is for read parcel amp
 # @st.cache_resource
@@ -63,18 +25,12 @@ def read_parcel_map(path, _m, year, ):
     yield_cate = 'yie_cate'
 
     gdf_idx = gdf[yield_cate]
-    # gdf.set_index('khasra_uni')
 
-    # colormap = cm.LinearColormap(["blue", "yellow", "red"], vmin=3, vmax=len(gdf_idx.unique()), caption = "Yield Loss")
-    colormap = cm.StepColormap(["red", "yellow", "blue"], vmin=0, vmax=len(gdf_idx.unique()), caption="Yield")
-
-    # html = colormap._repr_html_()
-    # custom_legend = html.replace("0.0", "Low").replace("1.0", "Medium").replace("3.0", "High")
-
+    colormap = cm.StepColormap(["red", "yellow", "blue"], vmin=0, vmax=len(gdf_idx.unique()), caption="Yield", )
 
     color_dict = {key: colormap(idx) for idx, key in enumerate(sorted(gdf_idx.unique()))}
     color_dict = {key: color_dict[gdf_idx[key]] for key in gdf_idx.keys()}
-    # print(np.unique([val for val in color_dict.values()]))
+
 
     style_function=lambda feature: {
         "fillColor": color_dict[int(feature['id'])],
@@ -84,23 +40,19 @@ def read_parcel_map(path, _m, year, ):
     }
 
 
-    
-
     folium.GeoJson(gdf, zoom_on_click=True, highlight_function=lambda x: {'weight': 3, 'color': 'red'}, name = "parcel_map",
-            tooltip=folium.GeoJsonTooltip(fields=[yield_cate]),
-                popup=folium.GeoJsonPopup(fields=[yield_cate, "y(kg/h)"], aliases=["Yield Category: ", "Yield (Kg/h)"]),
+            tooltip=folium.GeoJsonTooltip(fields=[yield_cate], aliases=["Yield Category: "]),
+                popup=folium.GeoJsonPopup(fields=[yield_cate, "y(kg/ha)"], aliases=["Yield Category: ", "Yield (Kg/h): "]),
                 style_function=style_function
                 ).add_to(_m)
-    
-    html = custom_colormap_labels(colormap, custom_ticks)
-    _m.get_root().html.add_child(folium.Element(html))
-    _m.save('custom_colormap_with_labels.html')
+
+    _m.add_child(colormap)
 
     return _m
 
 
 
-def get_map(path, year):
+def get_map(path, year, raster_path = None):
     gdf = gpd.read_file(path)
 
     # Showing ESRI Satellite Imagery
@@ -113,6 +65,11 @@ def get_map(path, year):
         )
     
     m = folium.Map(location=[gdf.geometry.centroid.y.mean(), gdf.geometry.centroid.x.mean()], zoom_start=14, tiles=tile)
+    
+    # Raster Overlay
+    if raster_path is not None:
+        folium.raster_layers.ImageOverlay(image=raster_path, bounds=[78.0020684509999995,24.1270070809999986,78.0366781390000028,24.1595161810000008]).add_to(m)
+    
 
     # For Full Screen
     folium.plugins.Fullscreen(
@@ -122,6 +79,7 @@ def get_map(path, year):
     force_separate_button=True,
     ).add_to(m)
     m = read_parcel_map(path, m, year)
+    # m.add_legend(title="hello", legend_dict = legend_dict)
     folium.LayerControl().add_to(m)
     st_data = st_folium(m, width=700, )
 
@@ -145,8 +103,8 @@ else:
 
 with c2: district = st.selectbox("Select your District:", district)
 with c3: village = st.selectbox("Select your Village:", village)
-with c4: year = st.selectbox("Select your Year", ["2022", "2023", "2024"])
-with c5: crop_type = st.selectbox("Select your Crop", ["Soyabean"])
+with c4: year = st.selectbox("Select your Year", ["2022", "2024"])
+with c5: crop_type = st.selectbox("Select your Crop", ["Soybean"])
 
 search = st.button('Search')
 
@@ -155,16 +113,27 @@ if search:
 
 if st.session_state['button_clicked']:
 
-
+    raster_path = None
     path = r"yield"
     if district == 'Mathura':
         path = os.path.join(path, 'mathura', 'Combined_mathura_nagladhanua.shp')
     elif district == 'Bhiwani':
         path = os.path.join(path, 'bhiwani', 'Final_Bhiwani_village_Bhiwani.shp')
     else:
-        path = os.path.join(path, 'vidisha', 'Vidisha_Yield_22_Parcels.shp')
-    # Making visualization of the village
-    get_map(path, year)
+        path = os.path.join(path, 'vidisha')
+        if year == '2022':
+            path = os.path.join(path,'2022', '22_Vidisha_Soybean_Yield_Zonal_Parcels.shp')
+            # raster_path = r"D:\projects\parcel_streamlit\yield\vidisha\2022\Vidisha_Bhaumrasa_Yield_Map.tif"
+        else:
+            path = os.path.join(path, '2023', 'Bhaumrasa_24_final_manipulated_yield.shp')
+            # raster_path = r'D:\projects\parcel_streamlit\yield\vidisha\2022\Vidisha_Bhaumrasa_Yield_Map.tif'
 
+    # Making visualization of the village
+
+
+
+
+
+    get_map(path, year, raster_path)
 
     # Making Claims Graphs
