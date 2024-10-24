@@ -5,42 +5,44 @@ import numpy as np
 import geopandas as gpd
 # import folium
 import leafmap.foliumap as leafmap
-
 # from branca.colormap import linear
 # import branca.colormap as cm
+# from branca.element import MacroElement, Template
+import leafmap.colormaps as cm
 import os
-
 st.set_page_config(layout="wide")
+
+
+st.title('Yield Map')
+if 'button_clicked' not in st.session_state:
+    st.session_state['button_clicked'] = False
 
 logo_path = r"C:\Users\AH-Nischal-Singh\Downloads\file-removebg-preview.png"
 sidebar_path = r"C:\Users\AH-Nischal-Singh\Downloads\file-removebg-preview.png"
 
 
-st.logo(sidebar_path, icon_image=logo_path, )
+st.logo(sidebar_path, icon_image=logo_path, size = 'large')
 st.sidebar.image(logo_path)
-st.title('Crop Map')
-
-if 'button_clicked' not in st.session_state:
-    st.session_state['button_clicked'] = False
 
 # This function is for read parcel amp
 # @st.cache_resource
-def read_parcel_map(gdf, _m, year):
+def read_parcel_map(gdf, _m, year, ):
     # gdf = gpd.read_file(path)
-    crop_year = year + '_Crop'
+    # yield_cate = 
+    yield_cate = 'yie_cate'
 
-    gdf_idx = gdf[crop_year]
-    # gdf.set_index('khasra_uni')
+    gdf_idx = gdf[yield_cate]
 
-    # colormap = cm.LinearColormap(["blue", "yellow", "red"], vmin=0, vmax=len(gdf_idx.unique()))
-    if len(gdf_idx.unique()) == 4: 
-        colormap = ["#0000FF",  "#000000", "#FFFF00", "#FF0000"]
-    else:
-        colormap = ["#0000FF", "#FFFF00", "#FF0000"]
+
+    # colormap = cm.StepColormap(["red", "yellow", "blue"], vmin=0, vmax=len(gdf_idx.unique()), caption="Yield", )
+
+    colormap = ["#FF0000", "#00FF00", "#0000FF"]
 
     legend_dict = {cate : color for cate, color in zip(sorted(gdf_idx.unique()), colormap)}
 
+
     color_dict = {key: colormap[idx] for idx, key in enumerate(sorted(gdf_idx.unique()))}
+    # color_dict = {}
     color_dict = {key: color_dict[gdf_idx[key]] for key in gdf_idx.keys()}
 
 
@@ -51,15 +53,16 @@ def read_parcel_map(gdf, _m, year):
         "fillOpacity": 0.5,
     }
 
-    gdf['Crop Type: '] = gdf.loc[:, crop_year]
-    # gdf['Yield (Kg/Hec): '] = gdf.loc[:, 'y(kg/ha)']
-    gdf = gdf.loc[:, ['Crop Type: ','geometry']]
-    _m.add_gdf(gdf, layer_name = "Crop Type", zoom_on_click=True, style_function=style_function, highlight_function = lambda x: {'weight': 3, 'color': 'red'})
+    gdf['Yield Category: '] = gdf.loc[:, 'yie_cate']
+    gdf['Yield (Kg/Hec): '] = gdf.loc[:, 'y(kg/ha)']
+    gdf = gdf.loc[:, ['Yield Category: ', 'Yield (Kg/Hec): ','geometry']]
+    _m.add_gdf(gdf, layer_name = "Yield", zoom_on_click=True, style_function=style_function, )
 
 
     # _m.add_child(colormap)
 
     return _m, legend_dict
+
 
 
 def get_map(path, year, raster_path = None):
@@ -72,15 +75,14 @@ def get_map(path, year, raster_path = None):
     
     m, legend_dict = read_parcel_map(gdf, m, year)
 
-    m.add_legend(title="Crop Type", legend_dict=legend_dict, draggable=False)
+    m.add_legend(title="Yield Category", legend_dict=legend_dict, draggable=False)
+    # m.add_raster(raster_path, colormap= 'terrain', layer_name=f"Raster {year}")
     m.to_streamlit(layout = 'wide')
-    if st.checkbox('Show Table: '):
-        st.table(gdf.loc[:, ['khasranum_', '2022_Crop', '2024_Crop']])
 
 # Making selectbox
-c1, c2, c3, c4 = st.columns(4)
+c1, c2, c3, c4, c5 = st.columns(5)
 
-with c1: state = st.selectbox("Select your State:", ['Madhya Pradesh', 'Uttar Pradesh', 'Haryana'])
+with c1: state = st.selectbox("Select your State:", ['Madhya Pradesh'])
 
 
 if state == 'Madhya Pradesh':
@@ -98,6 +100,7 @@ else:
 with c2: district = st.selectbox("Select your District:", district)
 with c3: village = st.selectbox("Select your Village:", village)
 with c4: year = st.selectbox("Select your Year", ["2022", "2024"])
+with c5: crop_type = st.selectbox("Select your Crop", ["Soybean"])
 
 search = st.button('Search')
 
@@ -106,22 +109,27 @@ if search:
 
 if st.session_state['button_clicked']:
 
-
-    path = r"crop_type"
+    raster_path = None
+    path = r"yield"
     if district == 'Mathura':
         path = os.path.join(path, 'mathura', 'Combined_mathura_nagladhanua.shp')
     elif district == 'Bhiwani':
         path = os.path.join(path, 'bhiwani', 'Final_Bhiwani_village_Bhiwani.shp')
     else:
-        path = os.path.join(path, 'vidisha', 'vidisha_croptype_final.shp')
-    # Making visualization of the village
-    get_map(path, year)
+        path = os.path.join(path, 'vidisha')
+        if year == '2022':
+            path = os.path.join(path,'2022', "2022_ZONAL.shp")
+            # raster_path = r"D:\projects\parcel_streamlit\yield\vidisha\2022\2022.tif"
+        else:
+            path = os.path.join(path, '2024', "2024_ZONALL.shp")
+            # raster_path = r"D:\projects\parcel_streamlit\yield\vidisha\2022\2024.tif"
 
+    # Making visualization of the village
+
+
+
+
+
+    get_map(path, year, raster_path)
 
     # Making Claims Graphs
-
-
-
-
-
-
