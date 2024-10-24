@@ -3,35 +3,45 @@ from streamlit_folium import st_folium
 import pandas as pd
 import numpy as np
 import geopandas as gpd
-import folium
-from branca.colormap import linear
-import branca.colormap as cm
+import leafmap.foliumap as leafmap
+
+# import folium
+# from branca.colormap import linear
+# import branca.colormap as cm
 import os
 
-st.title('AgronomIQ')
+st.set_page_config(layout="wide")
+
+logo_path = r"C:\Users\AH-Nischal-Singh\Downloads\file-removebg-preview.png"
+sidebar_path = r"C:\Users\AH-Nischal-Singh\Downloads\file-removebg-preview.png"
+
+
+st.logo(sidebar_path, icon_image=logo_path, )
+st.sidebar.image(logo_path)
+
+st.title('Claims Data')
 
 if 'button_clicked' not in st.session_state:
     st.session_state['button_clicked'] = False
 
 # This function is for read parcel amp
 # @st.cache_resource
-def read_parcel_map(path, _m, year):
-    gdf = gpd.read_file(path)
+def read_parcel_map(gdf, _m, year):
+    # gdf = gpd.read_file(path)
     # 'Cause of L' = year + '_Crop'
 
     gdf_idx = gdf['Cause of L']
 
     if len(gdf_idx.unique()) == 4: 
-        colors = ["blue", "green", "yellow", "red"]
+        colormap = ["#0000FF",  "#000000", "#FFFF00", "#FF0000"]
     else:
-        colors = ["yellow", "black", "red"]
+        colormap = ["#0000FF", "#000000", "#FF0000"]
 
-    colormap = cm.StepColormap(colors, vmin=0, vmax=len(gdf_idx.unique()), caption="Crop Type")
-    _m.add_child(colormap)
+    legend_dict = {cate : color for cate, color in zip(sorted(gdf_idx.unique()), colormap)}
 
-    color_dict = {key: colormap(idx) for idx, key in enumerate(sorted(gdf_idx.unique()))}
+    color_dict = {key: colormap[idx] for idx, key in enumerate(sorted(gdf_idx.unique()))}
     color_dict = {key: color_dict[gdf_idx[key]] for key in gdf_idx.keys()}
-    # print(np.unique([val for val in color_dict.values()]))
+
 
     style_function=lambda feature: {
         "fillColor": color_dict[int(feature['id'])],
@@ -39,39 +49,28 @@ def read_parcel_map(path, _m, year):
         "weight": 1,
         "fillOpacity": 0.5,
     }
-    folium.GeoJson(gdf, zoom_on_click=True, highlight_function=lambda x: {'weight': 3, 'color': 'red'}, name = "parcel_map",
-            tooltip=folium.GeoJsonTooltip(fields=['Cause of L'], aliases=["Cause of Loss: "]),
-                popup=folium.GeoJsonPopup(fields=['Cause of L', "Claims A_1"], aliases=["Cause of Loss: ", "Claims Amount: "]),
-                style_function=style_function
-                ).add_to(_m)
     
-    return _m
+    gdf['Cause of Loss: '] = gdf.loc[:, "Cause of L"]
+    gdf['Claim Amount: '] = gdf.loc[:, 'Claims A_1']
+    gdf = gdf.loc[:, ['Cause of Loss: ', 'Claim Amount: ', 'geometry']]
+    _m.add_gdf(gdf, layer_name = "Claim", zoom_on_click=True, style_function=style_function, highlight_function = lambda x: {'weight': 3, 'color': 'red'})
+
+    return _m, legend_dict
 
 
 
-def get_map(path, year):
+def get_map(path, year, raster_path = None):
     gdf = gpd.read_file(path)
 
-    # Showing ESRI Satellite Imagery
-    tile = folium.TileLayer(
-            tiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-            attr = 'Esri',
-            name = 'Esri Satellite',
-            overlay = False,
-            control = True
-        )
     
-    m = folium.Map(location=[gdf.geometry.centroid.y.mean(), gdf.geometry.centroid.x.mean()], zoom_start=15, tiles=tile)
-    folium.plugins.Fullscreen(
-    position="topright",
-    title="Expand me",
-    title_cancel="Exit me",
-    force_separate_button=True,
-    ).add_to(m)
-    m = read_parcel_map(path, m, year)
+    m = leafmap.Map(location=[gdf.geometry.centroid.y.mean(), gdf.geometry.centroid.x.mean()], zoom_start=14, draw_control=None)
+    m.add_basemap("SATELLITE")
+    # Raster Overlay
+    
+    m, legend_dict = read_parcel_map(gdf, m, year)
 
-    folium.LayerControl().add_to(m)
-    st_data = st_folium(m, width=700, )
+    m.add_legend(title="Crop Type", legend_dict=legend_dict, draggable=False)
+    m.to_streamlit(layout = 'wide')
 
 # Making selectbox
 c1, c2, c3, c4 = st.columns(4)
@@ -105,16 +104,16 @@ if st.session_state['button_clicked']:
 
     path = r"claims"
     if district == 'Mathura':
-        path = os.path.join(path, 'mathura', 'Combined_mathura_nagladhanua.shp')
+        path = os.path.join(path, 'mathura', '2022_soybean_claim_final.shp')
     elif district == 'Bhiwani':
-        path = os.path.join(path, 'bhiwani', 'Final_Bhiwani_village_Bhiwani.shp')
+        path = os.path.join(path, 'bhiwani', '2024_soybean_claim_final.shp')
     else:
         path = os.path.join(path, 'vidisha')
 
         if year == "2022":
-            path = os.path.join(path, "2022", "Claims_2022.shp")
+            path = os.path.join(path, "2022", "2022_soybean_claim_final.shp")
         else: 
-            path = os.path.join(path, "2024", "Claims_2024.shp")
+            path = os.path.join(path, "2024", "2024_soybean_claim_final.shp")
 
     # Making visualization of the village
     get_map(path, year)
