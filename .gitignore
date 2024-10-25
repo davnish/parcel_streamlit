@@ -12,3 +12,4 @@ mathura_nagladhanua.*
 vidisha_bhaunrasa.*
 *.html
 __pycache__/
+.DS_Store/
