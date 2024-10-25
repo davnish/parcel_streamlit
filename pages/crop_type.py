@@ -3,28 +3,11 @@ from streamlit_folium import st_folium
 import pandas as pd
 import numpy as np
 import geopandas as gpd
-# import folium
-import leafmap.foliumap as leafmap
 
-# from branca.colormap import linear
-# import branca.colormap as cm
+import leafmap.foliumap as leafmap
 import os
 
-st.set_page_config(layout="wide")
 
-logo_path = r"misc\logo\file-removebg-preview.png"
-sidebar_path = r"misc\logo\file-removebg-preview.png"
-
-
-st.logo(sidebar_path, icon_image=logo_path, )
-st.sidebar.image(logo_path)
-st.title('Crop Map')
-
-if 'button_clicked' not in st.session_state:
-    st.session_state['button_clicked'] = False
-
-# This function is for read parcel amp
-# @st.cache_resource
 def read_parcel_map(gdf, _m, year):
     # gdf = gpd.read_file(path)
     crop_year = year + '_Crop'
@@ -52,12 +35,10 @@ def read_parcel_map(gdf, _m, year):
     }
 
     gdf['Crop Type: '] = gdf.loc[:, crop_year]
-    # gdf['Yield (Kg/Hec): '] = gdf.loc[:, 'y(kg/ha)']
     gdf = gdf.loc[:, ['Crop Type: ','geometry']]
     _m.add_gdf(gdf, layer_name = "Crop Type", zoom_on_click=True, style_function=style_function, highlight_function = lambda x: {'weight': 3, 'color': 'red'})
 
 
-    # _m.add_child(colormap)
 
     return _m, legend_dict
 
@@ -114,6 +95,7 @@ if st.session_state['button_clicked']:
         path = os.path.join(path, 'bhiwani', 'Final_Bhiwani_village_Bhiwani.shp')
     else:
         path = os.path.join(path, 'vidisha', 'vidisha_croptype_final.shp')
+        
     # Making visualization of the village
     get_map(path, year)
 

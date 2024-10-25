@@ -4,19 +4,14 @@ import pandas as pd
 import numpy as np
 import geopandas as gpd
 import leafmap.foliumap as leafmap
-
-# import folium
-# from branca.colormap import linear
-# import branca.colormap as cm
 import os
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="Claims", page_icon=":earth_americas:", layout="wide")
 
-logo_path = r"misc\logo\file-removebg-preview.png"
-sidebar_path = r"misc\logo\file-removebg-preview.png"
+logo_path = os.path.join("misc", "logo", "file-removebg-preview.png")
+sidebar_path = os.path.join("misc", "logo", "file-removebg-preview.png")
 
-
-st.logo(sidebar_path, icon_image=logo_path, )
+# st.logo(sidebar_path, icon_image=logo_path, )
 st.sidebar.image(logo_path)
 
 st.title('Claims Data')
@@ -24,11 +19,7 @@ st.title('Claims Data')
 if 'button_clicked' not in st.session_state:
     st.session_state['button_clicked'] = False
 
-# This function is for read parcel amp
-# @st.cache_resource
 def read_parcel_map(gdf, _m, year):
-    # gdf = gpd.read_file(path)
-    # 'Cause of L' = year + '_Crop'
 
     gdf_idx = gdf['Cause of L']
 
@@ -39,8 +30,8 @@ def read_parcel_map(gdf, _m, year):
 
     legend_dict = {cate : color for cate, color in zip(sorted(gdf_idx.unique()), colormap)}
 
-    color_dict = {key: colormap[idx] for idx, key in enumerate(sorted(gdf_idx.unique()))}
-    color_dict = {key: color_dict[gdf_idx[key]] for key in gdf_idx.keys()}
+    # color_dict = {key: colormap[idx] for idx, key in enumerate(sorted(gdf_idx.unique()))}
+    color_dict = {key: legend_dict[gdf_idx[key]] for key in gdf_idx.keys()}
 
 
     style_function=lambda feature: {
@@ -73,7 +64,7 @@ def get_map(path, year, raster_path = None):
     m.to_streamlit(layout = 'wide')
 
 # Making selectbox
-c1, c2, c3, c4 = st.columns(4)
+c1, c2, c3, c4, c5 = st.columns(5)
 
 with c1: state = st.selectbox("Select your State:", ['Madhya Pradesh', 'Uttar Pradesh', 'Haryana'])
 
@@ -93,15 +84,13 @@ else:
 with c2: district = st.selectbox("Select your District:", district)
 with c3: village = st.selectbox("Select your Village:", village)
 with c4: year = st.selectbox("Select your Year", ["2022", "2024"])
+with c5: crop = st.selectbox("Select your Crop:", ["Soybean"])
 
-search = st.button('Search')
+search = st.button('Get Map')
 
-if search:
-    st.session_state['button_clicked'] = True
+if search: st.session_state['button_clicked'] = True
 
 if st.session_state['button_clicked']:
-
-
     path = r"claims"
     if district == 'Mathura':
         path = os.path.join(path, 'mathura', '2022_soybean_claim_final.shp')
