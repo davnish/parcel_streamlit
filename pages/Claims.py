@@ -12,8 +12,8 @@ import os
 
 st.set_page_config(layout="wide")
 
-logo_path = r"C:\Users\AH-Nischal-Singh\Downloads\file-removebg-preview.png"
-sidebar_path = r"C:\Users\AH-Nischal-Singh\Downloads\file-removebg-preview.png"
+logo_path = r"misc\logo\file-removebg-preview.png"
+sidebar_path = r"misc\logo\file-removebg-preview.png"
 
 
 st.logo(sidebar_path, icon_image=logo_path, )
