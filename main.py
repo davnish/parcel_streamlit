@@ -1,19 +1,21 @@
 import streamlit as st
-from streamlit_folium import st_folium
+# from streamlit_folium import st_folium
 import pandas as pd
 import numpy as np
 import geopandas as gpd
 import leafmap.foliumap as leafmap
+import leafmap.colormaps as cm
 import os
 
 
 class base:
-    def __init__(self, title_name, colormap, color_column, popup, aliases):
+    def __init__(self, title_name, color_column, popup, aliases, colormap = None):
         self.title_name = title_name
-        self.colormap = colormap
         self.color_column = color_column
         self.popup = popup
         self.aliases = aliases
+        if colormap is not None: self.colormap = colormap
+        else: self.colormap = cm.get_palette("Set1")
 
         st.set_page_config(page_title=f"{title_name}", page_icon="🦜",layout="wide")
 
@@ -48,7 +50,9 @@ class base:
 
         gdf_idx = self.gdf[self.color_column]
 
-        legend_dict = {cate : color for cate, color in zip(sorted(gdf_idx.unique()), self.colormap)}
+
+
+        legend_dict = {cate : self.colormap[i] for i, cate in enumerate(sorted(gdf_idx.unique()))}
         color_dict = {key: legend_dict[gdf_idx[key]] for key in gdf_idx.keys()}
 
         style_function=lambda feature: {

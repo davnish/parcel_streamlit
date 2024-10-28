@@ -3,8 +3,8 @@ from main import base
 import os
 
 class yield_map(base):
-    def __init__(self, title_name, colormap, color_column, popup, aliases):
-        super().__init__(title_name, colormap, color_column, popup, aliases)
+    def __init__(self, title_name, color_column, popup, aliases, colormap=None):
+        super().__init__(title_name, color_column, popup, aliases, colormap)
 
     def get_path(self):
         # Making selectbox
@@ -58,4 +58,4 @@ color_column = 'yie_cate'
 popup = ['yie_cate', 'y(kg/ha)']
 aliases = ['Yield Category:', 'Yield (Kg/Hec):']
 
-yield_map(title_name, colormap, color_column, popup, aliases)()
+yield_map(title_name, color_column, popup, aliases, colormap=colormap)()
