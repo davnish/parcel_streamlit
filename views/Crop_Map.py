@@ -2,6 +2,7 @@ import streamlit as st
 import os
 from main import base
 import os
+st.set_page_config(layout="wide")
 
 class crop_map(base):
     def __init__(self, title_name, color_column, popup, aliases):

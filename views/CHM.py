@@ -3,6 +3,7 @@ from main import base
 from streamlit_timeline import st_timeline
 import os
 import glob
+st.set_page_config(layout="wide")
 
 class chm_map(base):
     def __init__(self, title_name, color_column, popup, aliases, legend_order=None):

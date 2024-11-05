@@ -25,7 +25,6 @@ class base:
         # if colormap is not None: self.colormap = colormap
         # else: self.colormap = cm.get_palette("Paired")
         # print(self.colormap) 
-        st.set_page_config(page_title=f"{title_name}", page_icon="🌏",layout="wide")
 
         logo_path = os.path.join("misc", "logo", "file-removebg-preview.png")
         sidebar_path = os.path.join("misc", "logo", "file-removebg-preview.png")

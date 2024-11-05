@@ -1,169 +1,61 @@
 import streamlit as st
 from streamlit_folium import st_folium
-import pandas as pd
-import numpy as np
-import geopandas as gpd
-import leafmap.foliumap as leafmap
 import os
+from main import base
 
-st.set_page_config(page_title="Claims", page_icon=":earth_americas:", layout="wide")
+st.set_page_config(layout="wide")
 
-logo_path = os.path.join("misc", "logo", "file-removebg-preview.png")
-sidebar_path = os.path.join("misc", "logo", "file-removebg-preview.png")
+class yield_map(base):
+    def __init__(self, title_name, color_column, popup, aliases):
+        super().__init__(title_name, color_column, popup, aliases)
 
-# st.logo(sidebar_path, icon_image=logo_path, )
-st.sidebar.image(logo_path)
+    def get_path(self):
+        # Making selectbox
+        # c5 = st.columns(1)
+        crops = []
+        if self.year: crops.append("Soybean")
+        self.crop_type = st.selectbox("Select your Crop", crops, index = None, placeholder='Select')
 
-st.title('Claims Data')
+        path = None
+        path = r"claims"
 
-if 'button_clicked' not in st.session_state:
-    st.session_state['button_clicked'] = False
+        if self.district == 'Mathura':
+            path = os.path.join(path, 'mathura', 'Combined_mathura_nagladhanua.shp')
+        elif self.district == 'Bhiwani':
+            path = os.path.join(path, 'bhiwani')
+            if self.year == '2024':
+                path = os.path.join(path, '2024')
+                if self.crop_type == 'Cotton':
+                    path = os.path.join(path, 'cotton', '2024_cotton_yield_bhiwani_ajitpur.shp')
+                elif self.crop_type == 'Pearl Millet':
+                    path = os.path.join(path, 'pearl_millet', '2024_pearlmillet_yield_bhiwani_ajitpur.shp')
+        else:
+            path = os.path.join(path, 'vidisha')
+            if self.year == '2022':
+                path = os.path.join(path, '2022', 'soybean', "2022_soybean_claim_final.shp")
+            else:
+                path = os.path.join(path, '2024', 'soybean', "2024_soybean_claim_final.shp")
 
-def read_parcel_map(gdf, _m, year):
+        return path
 
-    gdf_idx = gdf['Cause of L']
+    def __call__(self):
+        self.format()
+        path = self.get_path()
 
-    if len(gdf_idx.unique()) == 4: 
-        colormap = ["#0000FF",  "#000000", "#FFFF00", "#FF0000"]
-    else:
-        colormap = ["#0000FF", "#000000", "#FF0000"]
-
-    legend_dict = {cate : color for cate, color in zip(sorted(gdf_idx.unique()), colormap)}
-
-    # color_dict = {key: colormap[idx] for idx, key in enumerate(sorted(gdf_idx.unique()))}
-    color_dict = {key: legend_dict[gdf_idx[key]] for key in gdf_idx.keys()}
-
-
-    style_function=lambda feature: {
-        "fillColor": color_dict[int(feature['id'])],
-        "color": "black",
-        "weight": 1,
-        "fillOpacity": 0.5,
-    }
-    
-    gdf['Cause of Loss: '] = gdf.loc[:, "Cause of L"]
-    gdf['Claim Amount: '] = gdf.loc[:, 'Claims A_1']
-    gdf = gdf.loc[:, ['Cause of Loss: ', 'Claim Amount: ', 'geometry']]
-    _m.add_gdf(gdf, layer_name = "Claim", zoom_on_click=True, style_function=style_function, highlight_function = lambda x: {'weight': 3, 'color': 'red'})
-
-    return _m, legend_dict
-
-
-
-def get_map(path, year, raster_path = None):
-    gdf = gpd.read_file(path)
-
-    
-    m = leafmap.Map(location=[gdf.geometry.centroid.y.mean(), gdf.geometry.centroid.x.mean()], zoom_start=14, draw_control=None)
-    m.add_basemap("SATELLITE")
-    # Raster Overlay
-    
-    m, legend_dict = read_parcel_map(gdf, m, year)
-
-    m.add_legend(title="Crop Type", legend_dict=legend_dict, draggable=False)
-    m.to_streamlit(layout = 'wide')
-
-# Making selectbox
-c1, c2, c3, c4, c5 = st.columns(5)
-
-with c1: state = st.selectbox("Select your State:", ['Madhya Pradesh', 'Uttar Pradesh', 'Haryana'])
+        if path and self.crop_type:
+        # Making visualization of the village
+            self.add_parcel_map(path)
+        self.m.to_streamlit(layout = 'wide')
+        
+        # side bar
+        claim = st.sidebar.radio("Select which data to see:", ["Prevented Sowing", "Yield Loss", "Localised Calamities", "Crop Loss"])
 
 
-if state == 'Madhya Pradesh':
-    district = ['Vidisha']
-    village = ['Bhaumrasa'] # !Need to change this
 
-elif state == 'Uttar Pradesh':
-    district = ['Mathura']
-    village = ['Nagla Dhanoua']
-else:
-    district = ['Bhiwani']
-    village = ['Ajitpur'] # !Need to change this
+title_name = 'Claims Data'
+# colormap = ["#FF0000", "#00FF00", "#0000FF"]
+color_column = 'Cause of L'
+popup = ["Cause of L", 'Claims A_1']
+aliases = ['Cause of Loss:', 'Claim Amount:']
 
-
-with c2: district = st.selectbox("Select your District:", district)
-with c3: village = st.selectbox("Select your Village:", village)
-with c4: year = st.selectbox("Select your Year", ["2022", "2024"])
-with c5: crop = st.selectbox("Select your Crop:", ["Soybean"])
-
-search = st.button('Get Map')
-
-if search: st.session_state['button_clicked'] = True
-
-if st.session_state['button_clicked']:
-    path = r"claims"
-    if district == 'Mathura':
-        path = os.path.join(path, 'mathura', '2022_soybean_claim_final.shp')
-    elif district == 'Bhiwani':
-        path = os.path.join(path, 'bhiwani', '2024_soybean_claim_final.shp')
-    else:
-        path = os.path.join(path, 'vidisha')
-
-        if year == "2022":
-            path = os.path.join(path, "2022", "2022_soybean_claim_final.shp")
-        else: 
-            path = os.path.join(path, "2024", "2024_soybean_claim_final.shp")
-
-    # Making visualization of the village
-    get_map(path, year)
-
-
-    # side bar
-    claim = st.sidebar.radio("Select which data to see:", ["Prevented Sowing", "Yield Loss", "Localised Calamities", "Crop Loss"])
-
-# from main import base
-
-# class claims(base):
-
-#     def __init__(self, title_name, colormap, color_column, popup, aliases):
-#         super().__init__(title_name, colormap, color_column, popup, aliases)
-
-#     def get_path(self):
-#         # Making selectbox
-#         c1, c2, c3, c4, c5 = st.columns(5)
-
-#         with c1: state = st.selectbox("Select your State:", ['Madhya Pradesh', 'Uttar Pradesh', 'Haryana'])
-
-
-#         if state == 'Madhya Pradesh':
-#             district = ['Vidisha']
-#             village = ['Bhaumrasa'] # !Need to change this
-
-#         elif state == 'Uttar Pradesh':
-#             district = ['Mathura']
-#             village = ['Nagla Dhanoua']
-#         else:
-#             district = ['Bhiwani']
-#             village = ['Ajitpur'] # !Need to change this
-
-
-#         with c2: district = st.selectbox("Select your District:", district)
-#         with c3: village = st.selectbox("Select your Village:", village)
-#         with c4: year = st.selectbox("Select your Year", ["2022", "2024"])
-#         with c5: crop = st.selectbox("Select your Crop:", ["Soybean"])
-
-#         search = st.button('Get Map')
-
-#         if search: st.session_state['button_clicked'] = True
-#         path = None
-#         if st.session_state['button_clicked']:
-#             path = r"claims"
-#             if district == 'Mathura':
-#                 path = os.path.join(path, 'mathura', '2022_soybean_claim_final.shp')
-#             elif district == 'Bhiwani':
-#                 path = os.path.join(path, 'bhiwani', '2024_soybean_claim_final.shp')
-#             else:
-#                 path = os.path.join(path, 'vidisha')
-
-#                 if year == "2022":
-#                     path = os.path.join(path, "2022", "2022_soybean_claim_final.shp")
-#                 else: 
-#                     path = os.path.join(path, "2024", "2024_soybean_claim_final.shp")
-#         return path
-    
-#     def __call__(self):
-#         path = self.get_path()
-
-#         # if path is not None:
-#         # Making visualization of the village
-#             # self.get_map(path)
+yield_map(title_name, color_column, popup, aliases)()

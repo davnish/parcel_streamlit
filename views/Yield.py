@@ -2,6 +2,8 @@ import streamlit as st
 from main import base
 import os
 
+st.set_page_config(layout="wide")
+
 class yield_map(base):
     def __init__(self, title_name, color_column, popup, aliases):
         super().__init__(title_name, color_column, popup, aliases)
