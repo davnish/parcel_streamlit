@@ -3,59 +3,52 @@ from main import base
 import os
 
 class yield_map(base):
-    def __init__(self, title_name, color_column, popup, aliases, colormap=None):
-        super().__init__(title_name, color_column, popup, aliases, colormap)
+    def __init__(self, title_name, color_column, popup, aliases):
+        super().__init__(title_name, color_column, popup, aliases)
 
     def get_path(self):
         # Making selectbox
-        c1, c2, c3, c4, c5 = st.columns(5)
+        # c5 = st.columns(1)
+        crops = []
+        if self.year: crops.append("Soybean")
+        self.crop_type = st.selectbox("Select your Crop", crops, index = None, placeholder='Select')
 
-        with c1: state = st.selectbox("Select your State:", ['Madhya Pradesh'])
-
-        if state == 'Madhya Pradesh':
-            district = ['Vidisha']
-            village = ['Bhaumrasa'] # !Need to change this
-
-        elif state == 'Uttar Pradesh':
-            district = ['Mathura']
-            village = ['Nagla Dhanoua']
-        else:
-            district = ['Bhiwani']
-            village = ['Ajitpur'] # !Need to change this
-
-        with c2: district = st.selectbox("Select your District:", district)
-        with c3: village = st.selectbox("Select your Village:", village)
-        with c4: year = st.selectbox("Select your Year", ["2022", "2024"])
-        with c5: crop_type = st.selectbox("Select your Crop", ["Soybean"])
-
-        search = st.button('Get Map')
-        if search: st.session_state['button_clicked'] = True
         path = None
-        if st.session_state['button_clicked']:
-            path = r"yield"
-            if district == 'Mathura':
-                path = os.path.join(path, 'mathura', 'Combined_mathura_nagladhanua.shp')
-            elif district == 'Bhiwani':
-                path = os.path.join(path, 'bhiwani', 'Final_Bhiwani_village_Bhiwani.shp')
+        path = r"yield"
+
+        if self.district == 'Mathura':
+            path = os.path.join(path, 'mathura', 'Combined_mathura_nagladhanua.shp')
+        elif self.district == 'Bhiwani':
+            path = os.path.join(path, 'bhiwani')
+            if self.year == '2024':
+                path = os.path.join(path, '2024')
+                if self.crop_type == 'Cotton':
+                    path = os.path.join(path, 'cotton', '2024_cotton_yield_bhiwani_ajitpur.shp')
+                elif self.crop_type == 'Pearl Millet':
+                    path = os.path.join(path, 'pearl_millet', '2024_pearlmillet_yield_bhiwani_ajitpur.shp')
+        else:
+            path = os.path.join(path, 'vidisha')
+            if self.year == '2022':
+                path = os.path.join(path, '2022', 'soybean', "2022_ZONAL.shp")
             else:
-                path = os.path.join(path, 'vidisha')
-                if year == '2022':
-                    path = os.path.join(path,'2022', "2022_ZONAL.shp")
-                else:
-                    path = os.path.join(path, '2024', "2024_ZONALL.shp")
+                path = os.path.join(path, '2024', 'soybean', "2024_ZONALL.shp")
+
         return path
-    
+
     def __call__(self):
+        self.format()
         path = self.get_path()
 
-        if path is not None:
+        if path and self.crop_type:
         # Making visualization of the village
-            self.get_map(path)
-                
+            self.add_parcel_map(path)
+        self.m.to_streamlit(layout = 'wide')
+
+
 title_name = 'Yield Map'
-colormap = ["#FF0000", "#00FF00", "#0000FF"]
+# colormap = ["#FF0000", "#00FF00", "#0000FF"]
 color_column = 'yie_cate'
 popup = ['yie_cate', 'y(kg/ha)']
 aliases = ['Yield Category:', 'Yield (Kg/Hec):']
 
-yield_map(title_name, color_column, popup, aliases, colormap=colormap)()
+yield_map(title_name, color_column, popup, aliases)()

@@ -10,7 +10,7 @@ import os
 
 
 class base:
-    def __init__(self, title_name, color_column, popup, aliases, colormap = None, legend_order = None):
+    def __init__(self, title_name, color_column, popup, aliases, legend_order = None):
         
         self.color_dict = {'Low': 'red', 'High': 'green', 'Healthy': 'green', 'Moderate': 'blue', 
               'Blackgram': 'blue', 'Paddy': 'yellow', 'Soybean': 'red', 'No Claim': 'blue', 
@@ -22,8 +22,8 @@ class base:
         self.popup = popup
         self.aliases = aliases
         self.legend_order = legend_order
-        if colormap is not None: self.colormap = colormap
-        else: self.colormap = cm.get_palette("Paired")
+        # if colormap is not None: self.colormap = colormap
+        # else: self.colormap = cm.get_palette("Paired")
         # print(self.colormap) 
         st.set_page_config(page_title=f"{title_name}", page_icon="🌏",layout="wide")
 
@@ -34,9 +34,6 @@ class base:
         st.sidebar.image(logo_path)
 
         st.title(f'{title_name}')
-        # self.set_map()
-        # if 'button_clicked' not in st.session_state:
-        #     st.session_state['button_clicked'] = False
 
         if 'selected' not in st.session_state:
             st.session_state['selected'] = False
@@ -47,16 +44,14 @@ class base:
         gdf = gpd.read_file(path)
         return gdf
 
-    # def get_map(self, path):
-    #     legend_dict = self.add_parcel_map(path)
-    #     self.m.add_legend(title=f"{self.title_name}", legend_dict=legend_dict, draggable=False)
+    def add_map(self, path, layer_name, color=None):
+        if color is None:
+            color = 'blue'
 
-    
-    def add_map(self, path, layer_name):
         line_style = {
-            'color': 'blue',      # Line color
-            'weight': 2,          # Line thickness
-            'dashArray': '5, 5',
+            'color': color,      # Line color
+            'weight': 4,          # Line thickness
+            'dashArray': '7, 7',
             'fillOpacity': 0   # Creates a dashed effect: "5px line, 5px space"
         }
 
@@ -101,8 +96,82 @@ class base:
         # gdf = self.get_data(path)
         self.m = leafmap.Map(location = [22.176,78.410], zoom_start=5, draw_control=None)
         self.m.add_basemap("SATELLITE")
+    
+    def format(self):
+        admin_bounds = 'admin_bounds'
 
-          
+        self.set_map()
+        c1, c2, c3, c4, c5 = st.columns(5)
+
+        with c1: state = st.selectbox("Select your State:", ['Madhya Pradesh', 'Uttar Pradesh', 'Haryana'], index = None, placeholder='Select')
+        
+        district = []
+        village = []
+        block = []
+        year = []
+
+        state_bound_color = '#661100'
+        dist_bound_color = '#6699CC'
+        block_bound_color = '#71035e'
+        village_bound_color = '#000000'
+
+        state_bounds = os.path.join(admin_bounds , 'state_boundary')
+        if state == 'Madhya Pradesh':
+            district.append('Vidisha')
+            block.append('Kurwai')
+            village.append('Bhaunrasa')
+            year.extend(['2022', '2023', '2024'])
+            self.add_map(os.path.join(state_bounds, "mp", "mp_state_boundary.shp"), state, state_bound_color)
+
+        elif state == 'Uttar Pradesh':
+            district.append('Mathura')
+            block.append('Mahavan')
+            village.append('Nagla Dhanua')
+            year.extend(['2022', '2023','2024'])
+
+            self.add_map(os.path.join(state_bounds, "up", "UP_state_boundary.shp"), state, state_bound_color)
+
+        elif state == 'Haryana':
+            district.append('Bhiwani')
+            block.append('Bhiwani')
+            village.append('Ajitpur')
+            year.extend(['2022', '2023','2024'])
+
+            self.add_map(os.path.join(state_bounds, "haryana", "haryana_state_boundary.shp"), state, state_bound_color)
+
+        with c2: self.district = st.selectbox("Select your District:", district,  index = None, placeholder='Select')
+        
+        district_bounds = os.path.join(admin_bounds, 'district_boundary')
+
+        if self.district == 'Vidisha':
+            self.add_map(os.path.join(district_bounds, 'vidisha', 'vidisha_district.shp'), self.district, dist_bound_color)
+        elif self.district == 'Bhiwani':
+            self.add_map(os.path.join(district_bounds, 'bhiwani', 'BHIWANI_DISTRICT.shp'), self.district, dist_bound_color)
+        elif self.district == 'Mathura':
+            self.add_map(os.path.join(district_bounds, 'mathura', 'mathura_district.shp'), self.district, dist_bound_color)
+        
+        with c3: block = st.selectbox("Select your Tehsil:", block ,  index = None, placeholder='Select')
+        
+        block_bounds = os.path.join(admin_bounds, 'subdistrict_boundary')
+        if block == 'Kurwai':
+            self.add_map(os.path.join(block_bounds, 'kurwai/VIDISHA_SUDISTRICT.shp'), block, block_bound_color)
+        elif block == 'Bhiwani':
+            self.add_map(os.path.join(block_bounds,'bhiwani/Bhiwani_subdist.shp'), block, block_bound_color)
+        elif block == 'Mahavan':
+            self.add_map(os.path.join(block_bounds, 'mahavan/mathura_subdistrict.shp'), block, block_bound_color)
+        
+        with c4: village = st.selectbox("Select your Village:", village,  index = None, placeholder='Select')
+        
+        village_bounds = os.path.join(admin_bounds, 'village_boundary')
+        if village == 'Bhaunrasa':
+            self.add_map(os.path.join(village_bounds, 'Bhaunrasa/vidisha_village_boundary.shp'), village, village_bound_color)
+        elif village == 'Ajitpur':
+            self.add_map(os.path.join(village_bounds, 'Ajitpur/BHIWANI_VILLAGE_AJITPUR.shp'), village, village_bound_color)
+        elif village == 'Nagla Dhanua':
+            self.add_map(os.path.join(village_bounds, 'Nagla_Dhanua/mathura_village_boundary.shp'), village, village_bound_color)
+        
+        with c5: self.year = st.selectbox("Select your Year", year,  index = None, placeholder='Select')
+
 # --- Page Setup ---
 
 crop_map = st.Page(
