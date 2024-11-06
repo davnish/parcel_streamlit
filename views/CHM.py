@@ -6,31 +6,20 @@ import glob
 st.set_page_config(layout="wide")
 
 class chm_map(base):
-    def __init__(self, title_name, color_column, popup, aliases, legend_order=None):
-        super().__init__(title_name, color_column, popup, aliases, legend_order)
+    def __init__(self, title_name, color_column, popup, aliases, path, legend_order):
+        super().__init__(title_name, color_column, popup, aliases, path, legend_order=legend_order)
 
     def get_path(self):
-        # Making selectbox
 
-        path = None
-        path = r"chm"
-        if self.district == 'Mathura' and self.year:
-            path = os.path.join(path, 'mathura', self.year)
-        elif self.district == 'Bhiwani' and self.year:
-            path = os.path.join(path, 'bhiwani', self.year)
-        elif self.district == 'Vidisha' and self.year:
-            path = os.path.join(path, 'vidisha', self.year)
-
-
-        items = [{'id': idx, 'content': os.path.splitext(os.path.split(date)[1])[0], 'start': os.path.splitext(os.path.split(date)[1])[0]} for idx, date in enumerate(glob.glob(os.path.join(path, "*.shp")))]
-
+        items = [{'id': idx, 'content': os.path.splitext(os.path.split(date)[1])[0], 'start': os.path.splitext(os.path.split(date)[1])[0]} for idx, date in enumerate(glob.glob(os.path.join(self.path, "*.shp")))]
         timeline = st_timeline(items, groups=[], options={}, height="200px")
 
         if timeline:
-            path = os.path.join(path, f'{timeline["start"]}.shp')
+            self.path = os.path.join(self.path, f'{timeline["start"]}.shp')
         else: 
-            path = None
-        return path
+            self.path = None
+
+        return self.path
     
     def __call__(self):
         self.format()
@@ -50,12 +39,13 @@ class chm_map(base):
 
                 
 title_name = 'Crop Health Monitoring'
+path = r'data/chm'
 # colormap = None
 color_column = 'Category'
 popup = ['mean']
 aliases = ['Mean']
 legend_order = ['High', 'Moderate', 'Low']
-chm_map(title_name, color_column, popup, aliases, legend_order = legend_order)()
+chm_map(title_name, color_column, popup, aliases, path, legend_order = legend_order)()
 
 
 

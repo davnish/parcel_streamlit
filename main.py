@@ -1,27 +1,32 @@
 import streamlit as st
-# from streamlit_folium import st_folium
-# import pandas as pd
-# import numpy as np
 import matplotlib.colors as mcolors
 import geopandas as gpd
 import leafmap.foliumap as leafmap
-import leafmap.colormaps as cm
+# import leafmap.colormaps as cm
 import os
+import glob
 
 
 class base:
-    def __init__(self, title_name, color_column, popup, aliases, legend_order = None):
+    def __init__(self, title_name, color_column, popup, 
+                 aliases, path, legend_order = None, color_dict = None):
         
-        self.color_dict = {'Low': 'red', 'High': 'green', 'Healthy': 'green', 'Moderate': 'blue', 
-              'Blackgram': 'blue', 'Paddy': 'yellow', 'Soybean': 'red', 'No Claim': 'blue', 
+        if color_dict is None:
+            self.color_dict = {'Low': 'red', 'High': 'green', 'Healthy': 'green', 'Moderate': 'blue', 
+              'Blackgram': 'blue', 'Paddy': 'yellow', 'Soybean': 'green', 'No Claim': 'blue', 
               'No Data': 'black', 'Prevented Sowing': 'yellow', 'Yield Loss': 'red', 
-              'Cotton': 'white', 'Pearl Millet': 'brown', 'No crop': 'black' }
+              'Cotton': 'pink', 'Pearl Millet': 'brown', 'No crop': 'black', 'No': 'black' , 
+              'Pre-Harvest Loss': 'yellow'}
+        else:
+            self.color_dict = color_dict
         
+        print(color_dict)
         self.title_name = title_name
         self.color_column = color_column
         self.popup = popup
         self.aliases = aliases
         self.legend_order = legend_order
+        self.path = path
         # if colormap is not None: self.colormap = colormap
         # else: self.colormap = cm.get_palette("Paired")
         # print(self.colormap) 
@@ -78,17 +83,20 @@ class base:
             "fillOpacity": 1,
         }
         
-        for name, col in zip(self.aliases, self.popup):
-            self.gdf.rename(columns = {col:name}, inplace = True)
+        if self.popup and self.aliases:
+            for name, col in zip(self.aliases, self.popup):
+                self.gdf.rename(columns = {col:name}, inplace = True)
+            self.gdf = self.gdf.loc[:, [*self.aliases, 'geometry']]
+        
 
-        self.m.add_gdf(self.gdf.loc[:, [*self.aliases, 'geometry']], 
+        self.m.add_gdf(self.gdf, 
                        layer_name = f"{self.title_name}", zoom_on_click=True, 
                        style_function=style_function, 
                        highlight_function = lambda x: {'weight': 3, 'color': 'red'})
         
         
         self.m.add_legend(title=f"{self.title_name}", legend_dict=legend_dict, draggable=False)
-        self.m.set_center(lat=self.gdf.geometry.centroid.y.mean(),lon=self.gdf.geometry.centroid.x.mean(), zoom = 14 )
+        self.m.set_center(lat=self.gdf.geometry.centroid.y.mean(),lon=self.gdf.geometry.centroid.x.mean(), zoom = 15 )
 
     
     def set_map(self):
@@ -96,13 +104,24 @@ class base:
         self.m = leafmap.Map(location = [22.176,78.410], zoom_start=5, draw_control=None)
         self.m.add_basemap("SATELLITE")
     
+    def get_options_dir(self, path):
+        return sorted([i.title() for i in os.listdir(path)])
+        
+    
     def format(self):
-        admin_bounds = 'admin_bounds'
+        admin_bounds = r'data/admin_bounds'
 
         self.set_map()
         c1, c2, c3, c4, c5 = st.columns(5)
 
-        with c1: state = st.selectbox("Select your State:", ['Madhya Pradesh', 'Uttar Pradesh', 'Haryana'], index = None, placeholder='Select')
+        temp = self.get_options_dir(self.path)
+        states = []
+
+        if 'Bhiwani' in temp: states.append('Haryana')
+        if 'Mathura' in temp: states.append('Uttar Pradesh')
+        if 'Vidisha' in temp: states.append('Madhya Pradesh')
+
+        with c1: state = st.selectbox("Select your State:", sorted(states), index = None, placeholder='Select')
         
         district = []
         village = []
@@ -119,14 +138,17 @@ class base:
             district.append('Vidisha')
             block.append('Kurwai')
             village.append('Bhaunrasa')
-            year.extend(['2022', '2023', '2024'])
+
+            # self.path = os.path.join(self.path)
+            # year.extend(['2022', '2023', '2024'])
+            
             self.add_map(os.path.join(state_bounds, "mp", "mp_state_boundary.shp"), state, state_bound_color)
 
         elif state == 'Uttar Pradesh':
             district.append('Mathura')
             block.append('Mahavan')
             village.append('Nagla Dhanua')
-            year.extend(['2022', '2023','2024'])
+            # year.extend(['2022', '2023','2024'])
 
             self.add_map(os.path.join(state_bounds, "up", "UP_state_boundary.shp"), state, state_bound_color)
 
@@ -134,14 +156,17 @@ class base:
             district.append('Bhiwani')
             block.append('Bhiwani')
             village.append('Ajitpur')
-            year.extend(['2022', '2023','2024'])
+            # year.extend(['2022', '2023','2024'])
 
             self.add_map(os.path.join(state_bounds, "haryana", "haryana_state_boundary.shp"), state, state_bound_color)
 
         with c2: self.district = st.selectbox("Select your District:", district,  index = None, placeholder='Select')
         
         district_bounds = os.path.join(admin_bounds, 'district_boundary')
-
+        
+        # chossing the parcel map to show
+        if self.district: self.path = os.path.join(self.path, self.district.lower())
+        
         if self.district == 'Vidisha':
             self.add_map(os.path.join(district_bounds, 'vidisha', 'vidisha_district.shp'), self.district, dist_bound_color)
         elif self.district == 'Bhiwani':
@@ -163,13 +188,22 @@ class base:
         
         village_bounds = os.path.join(admin_bounds, 'village_boundary')
         if village == 'Bhaunrasa':
-            self.add_map(os.path.join(village_bounds, 'Bhaunrasa/vidisha_village_boundary.shp'), village, village_bound_color)
+            self.add_map(os.path.join(village_bounds, 'Bhaunrasa/vidisha_village_boundary_1.shp'), village, village_bound_color)
         elif village == 'Ajitpur':
             self.add_map(os.path.join(village_bounds, 'Ajitpur/BHIWANI_VILLAGE_AJITPUR.shp'), village, village_bound_color)
         elif village == 'Nagla Dhanua':
             self.add_map(os.path.join(village_bounds, 'Nagla_Dhanua/mathura_village_boundary.shp'), village, village_bound_color)
         
+        # print(self.path)
+        if village: year = self.get_options_dir(self.path)
+
         with c5: self.year = st.selectbox("Select your Year", year,  index = None, placeholder='Select')
+
+        if self.year: self.path = os.path.join(self.path, self.year)
+    
+    def get_filename(self):
+        for i in glob.glob(os.path.join(self.path, '*.shp')): return i
+            
 
 # --- Page Setup ---
 

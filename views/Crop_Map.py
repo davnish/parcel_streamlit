@@ -5,22 +5,13 @@ import os
 st.set_page_config(layout="wide")
 
 class crop_map(base):
-    def __init__(self, title_name, color_column, popup, aliases):
-        super().__init__(title_name, color_column, popup, aliases)
+    def __init__(self, title_name, color_column, popup, aliases, path):
+        super().__init__(title_name, color_column, popup, aliases, path)
 
     def get_path(self):
-        # Making selectbox
-                
-        path = None
-        path = r"crop_type"
-
-        if self.district == 'Mathura':
-            path = os.path.join(path, 'mathura', 'Combined_mathura_nagladhanua.shp')
-        elif self.district == 'Bhiwani':
-            path = os.path.join(path, 'bhiwani', 'Final_Bhiwani_village_Bhiwani.shp')
-        else:
-            path = os.path.join(path, 'vidisha', 'vidisha_croptype_final.shp')
-        return path
+        if self.year: self.path = self.get_filename()
+        
+        return self.path
     
     
     def add_parcel_map(self, path):
@@ -43,13 +34,12 @@ class crop_map(base):
 
 
 title_name = 'Crop Map'
-# colormap = None/
-# colormap = ["#FF0000", "#00FF00", "#0000FF"]
+path = r'data/crop_map'
 color_column = None
-popup = ['khasranum_']
-aliases = ['Khasra No:']
+popup = ['KHASRA', 'area_hecta']
+aliases = ['Khasra No:', 'Area (hectare)']
 
-crop_map(title_name, color_column, popup, aliases)()
+crop_map(title_name, color_column, popup, aliases, path)()
 
 
 
