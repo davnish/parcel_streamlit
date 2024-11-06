@@ -1,0 +1,4 @@
+geopandas==1.0.1
+pandas==2.2.2
+leafmap==0.36.2  
+streamlit-vis-timeline==0.3.0    

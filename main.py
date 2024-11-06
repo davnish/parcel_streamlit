@@ -1,8 +1,6 @@
 import streamlit as st
-# import matplotlib.colors as mcolors
 import geopandas as gpd
 import leafmap.foliumap as leafmap
-# import leafmap.colormaps as cm
 import os
 import glob
 

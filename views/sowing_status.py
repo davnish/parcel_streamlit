@@ -1,7 +1,5 @@
 import pandas as pd
 import streamlit as st
-# import leafmap.foliumap as leafmap
-import geopandas as gpd
 from main import base
 # import os
 st.set_page_config(layout="wide")
