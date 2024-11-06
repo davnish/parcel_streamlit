@@ -1,5 +1,5 @@
 import streamlit as st
-import matplotlib.colors as mcolors
+# import matplotlib.colors as mcolors
 import geopandas as gpd
 import leafmap.foliumap as leafmap
 # import leafmap.colormaps as cm
@@ -11,6 +11,8 @@ class base:
     def __init__(self, title_name, color_column, popup, 
                  aliases, path, legend_order = None, color_dict = None):
         
+        self.hex = {'red':'#ff0000', 'green':'#00FF00' , 'blue':'#0000FF', 'yellow': '#FFFF00', 'orange': '#ffa500', 'black': '#000000', 'brown':'#5C4033', 'pink':'#FFC0CB'}
+
         if color_dict is None:
             self.color_dict = {'Low': 'red', 'High': 'green', 'Healthy': 'green', 'Moderate': 'blue', 
               'Blackgram': 'blue', 'Paddy': 'yellow', 'Soybean': 'green', 'No Claim': 'blue', 
@@ -20,7 +22,10 @@ class base:
         else:
             self.color_dict = color_dict
         
-        print(color_dict)
+        # for i in self.color_dict.keys():
+        #     self.color_dict[i] = hex[self.color_dict[i]]
+        
+        # print(color_dict)
         self.title_name = title_name
         self.color_column = color_column
         self.popup = popup
@@ -44,7 +49,7 @@ class base:
 
     # @st.cache_data
     def get_data(self, path):
-        print(path)
+        # print(path)
         gdf = gpd.read_file(path)
         return gdf
 
@@ -69,9 +74,9 @@ class base:
         gdf_idx = self.gdf[self.color_column]
 
         if self.legend_order is None:
-            legend_dict = {cate : mcolors.CSS4_COLORS[self.color_dict[cate]] for cate in sorted(gdf_idx.unique())}
+            legend_dict = {cate : self.hex[self.color_dict[cate]] for cate in sorted(gdf_idx.unique())}
         else:
-            legend_dict = {cate : mcolors.CSS4_COLORS[self.color_dict[cate]] for cate in self.legend_order}
+            legend_dict = {cate : self.hex[self.color_dict[cate]] for cate in self.legend_order}
             
         
         color_dict = {key: legend_dict[gdf_idx[key]] for key in gdf_idx.keys()}
