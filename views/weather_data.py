@@ -2,6 +2,8 @@ import pandas as pd
 import streamlit as st
 from main import base
 import os
+
+
 st.set_page_config(layout="wide")
 
 class weather_map(base):
@@ -33,9 +35,6 @@ class weather_map(base):
         return self.year
 
 
-
-
-
 title_name = 'Weather Data'
 path = r'data/weather'
 color_column = 'cate'
@@ -47,6 +46,8 @@ tillage = weather_map(title_name, color_column, popup, aliases, path, color_dict
 
 if tillage == '2022':
     df = pd.read_csv(r'data/weather/Ajeetpur_precip_time_series.csv')
+    # df = df[]
+    df = df[20: 41]
+    df['validdate'] = df['validdate'].str.slice(0, 10)
     df['Precipitation'] = df['precip_24h:mm']
-
     st.line_chart(df, x='validdate', y="Precipitation")

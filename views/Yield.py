@@ -5,8 +5,8 @@ import os
 st.set_page_config(layout="wide")
 
 class yield_map(base):
-    def __init__(self, title_name, color_column, popup, aliases, path):
-        super().__init__(title_name, color_column, popup, aliases, path)
+    def __init__(self, title_name, color_column, popup, aliases, path, legend_order):
+        super().__init__(title_name, color_column, popup, aliases, path, legend_order=legend_order)
 
     def get_path(self):
         crops = []
@@ -34,7 +34,8 @@ title_name = 'Yield Map'
 # colormap = ["#FF0000", "#00FF00", "#0000FF"]
 path = r'data/yield'
 color_column = 'yie_cate'
+legend_order = ['High', 'Moderate', 'Low']
 popup = ['yie_cate', 'y(kg/ha)']
 aliases = ['Yield Category:', 'Yield (Kg/Hec):']
 
-yield_map(title_name, color_column, popup, aliases, path)()
+yield_map(title_name, color_column, popup, aliases, path, legend_order=legend_order)()

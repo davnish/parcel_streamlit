@@ -15,8 +15,8 @@ class base:
             self.color_dict = {'Low': 'red', 'High': 'green', 'Healthy': 'green', 'Moderate': 'blue', 
               'Blackgram': 'blue', 'Paddy': 'yellow', 'Soybean': 'green', 'No Claim': 'blue', 
               'No Data': 'black', 'Prevented Sowing': 'yellow', 'Yield Loss': 'red', 
-              'Cotton': 'pink', 'Pearl Millet': 'brown', 'No crop': 'black', 'No': 'black' , 
-              'Pre-Harvest Loss': 'yellow'}
+              'Cotton': 'pink', 'Pearl Millet': 'brown', 'No crop': 'black', 'No': 'brown' , 
+              'Pre-Harvest Loss': 'yellow', 'Localised Claim(Pest)': 'yellow'}
         else:
             self.color_dict = color_dict
         
@@ -120,11 +120,11 @@ class base:
         temp = self.get_options_dir(self.path)
         states = []
 
-        if 'Bhiwani' in temp: states.append('Haryana')
-        if 'Mathura' in temp: states.append('Uttar Pradesh')
         if 'Vidisha' in temp: states.append('Madhya Pradesh')
+        if 'Mathura' in temp: states.append('Uttar Pradesh')
+        if 'Bhiwani' in temp: states.append('Haryana')
 
-        with c1: state = st.selectbox("Select your State:", sorted(states), index = None, placeholder='Select')
+        with c1: state = st.selectbox("Select your State:", states, index = None, placeholder='Select')
         
         district = []
         village = []
@@ -204,8 +204,8 @@ class base:
 
         if self.year: self.path = os.path.join(self.path, self.year)
     
-    def get_filename(self):
-        for i in glob.glob(os.path.join(self.path, '*.shp')): return i
+    def get_filename(self, extension='*.shp'):
+        for i in glob.glob(os.path.join(self.path, extension)): return i
             
 
 # --- Page Setup ---
@@ -224,8 +224,8 @@ yield_map = st.Page(
 )
 
 sowing_status = st.Page(
-    page = "views/sowing_status.py",
-    title = "Sowing Status",
+    page = "views/tillage_status.py",
+    title = "Tillage Status",
     icon = "👨🏽‍🌾",
 )
 
