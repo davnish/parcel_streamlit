@@ -31,13 +31,6 @@ class chm_map(base):
             self.add_parcel_map(path)
 
         self.m.to_streamlit(layout = 'wide')
-        return self.district, self.year
-    
-    # def add_parcel_map(self, path):
-    #     # self.gdf['res'] = self.gdf[color_column].apply(lambda x: 'Low' if x <= 0.3 else ('Healthy' if x > 0.55 else 'Moderate'))
-    #     self.color_column = 'Category'
-    #     return super().add_parcel_map(path)
-
 
                 
 title_name = 'Crop Health Monitoring'
@@ -47,10 +40,12 @@ color_column = 'Category'
 popup = ['mean']
 aliases = ['Mean']
 legend_order = ['High', 'Moderate', 'Low']
-chm_dist, chm_year = chm_map(title_name, color_column, popup, aliases, path, legend_order = legend_order)()
+chm_map(title_name, color_column, popup, aliases, path, legend_order = legend_order)()
 
+chm_year = base.get_key_value('year')
+chm_state = base.get_key_value('state')
 if chm_year == '2024':
-    path = os.path.join(path, chm_dist, chm_year, 'chart')
+    path = os.path.join(path, chm_state.lower(), chm_year, 'chart')
     filename = [i for i in os.listdir(path) if i.endswith('.csv')][0]
     df = pd.read_csv(os.path.join(path, filename), index_col = None)
     df['image_date'] = df['image_date'].str.slice(0, 10)
