@@ -80,9 +80,13 @@ col[2].metric("Average Acutal Yield(IU):", "298.8 kg/ha")
 col2 = st.columns(3)
 # col2[0].metric("Estimated Average Actual Yield(Parcelwise):", "259.87 kg/ha")
 col2[0].metric("Model Yield For IU At Parcel Level", "259.87 kg/ha")
-col2[1].metric("Estimated Claim(Sum):", "₹ 13,70,937")
+col2[1].metric("Estimated Claim(Sum):", "₹ 14,00,598")
 # col2[2].metric("Suggested Yield By TIP", "189.19 kg/ha") # Need to change this
-col2[2].metric("Model Yield For IU At Village Level", "189.19 kg/ha") # Need to change this
+
+col3 = st.columns(3)
+
+col3[0].metric("Model Yield For IU At Village Level", "189.19 kg/ha") # Need to change this
+col3[1].metric("Estimated Claim(Sum):", "₹ 49,49,048")
 
 # st.table(column = , index = None)
 

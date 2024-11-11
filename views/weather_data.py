@@ -19,7 +19,7 @@ class weather_map(base):
 
         if self.parameter: 
             self.path = os.path.join(self.path, self.parameter.lower())
-            self.path =  self.get_filename()
+            self.path =  self.get_filename(self.path)
         
         # return self.path
 
