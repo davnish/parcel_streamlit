@@ -4,8 +4,6 @@ from main import base
 import os
 
 
-st.set_page_config(layout="wide")
-
 class weather_map(base):
     def __init__(self, title_name, color_column, popup, aliases, path, color_dict):
         super().__init__(title_name, color_column, popup, aliases, path, color_dict=color_dict)
@@ -14,7 +12,7 @@ class weather_map(base):
         # Making selectbox
 
         parameter = []
-        print(self.path)
+        # print(self.path)
         if self.year: parameter = self.get_options_dir(self.path)
         self.parameter = st.selectbox("Select your parameter", parameter, index = None, placeholder='Select')
 
@@ -22,17 +20,17 @@ class weather_map(base):
             self.path = os.path.join(self.path, self.parameter.lower())
             self.path =  self.get_filename()
         
-        return self.path
+        # return self.path
 
     def __call__(self):
         self.format()
-        path = self.get_path()
+        self.get_path()
 
-        if path and self.parameter:
+        if self.parameter:
         # Making visualization of the village
-            self.add_parcel_map(path)
+            self.add_parcel_map(self.path)
         self.m.to_streamlit(layout = 'wide')
-        return self.year
+        # return self.year
 
 
 title_name = 'Weather Data'
@@ -42,9 +40,9 @@ popup = ['Khasra_No']
 aliases = ['Khasra No:']
 # title_name = 'Crop Map'
 color_dict = {'1 - 1.5 mm': 'blue', '1.5 - 2 mm': 'orange'}
-tillage = weather_map(title_name, color_column, popup, aliases, path, color_dict=color_dict)()
+weather_map(title_name, color_column, popup, aliases, path, color_dict=color_dict)()
 
-if tillage == '2022':
+if base.get_key_value('year') == '2022':
     df = pd.read_csv(r'data/weather/Ajeetpur_precip_time_series.csv')
     # df = df[]
     df = df[20: 41]

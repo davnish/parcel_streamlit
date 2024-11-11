@@ -2,7 +2,6 @@ import streamlit as st
 from main import base
 import os
 
-st.set_page_config(layout="wide")
 
 class yield_map(base):
     def __init__(self, title_name, color_column, popup, aliases, path, legend_order):
@@ -15,22 +14,22 @@ class yield_map(base):
 
         if self.crop_type: 
             self.path = os.path.join(self.path, self.crop_type.lower())
-            self.path = self.get_filename()
+            self.path = self.get_filename(self.path)
         
-        return self.path
+        # return self.path
 
     def __call__(self):
         self.format()
-        path = self.get_path()
+        self.get_path()
 
-        if path and self.crop_type:
+        if self.crop_type:
         # Making visualization of the village
-            self.add_parcel_map(path)
+            self.add_parcel_map(self.path)
             
         self.m.to_streamlit(layout = 'wide')
 
 
-title_name = 'Yield Map'
+title_name = 'Yield Prediction'
 # colormap = ["#FF0000", "#00FF00", "#0000FF"]
 path = r'data/yield'
 color_column = 'yie_cate'

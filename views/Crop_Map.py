@@ -1,5 +1,6 @@
 import streamlit as st
 from main import base
+
 st.set_page_config(layout="wide")
 
 class crop_map(base):
@@ -7,10 +8,9 @@ class crop_map(base):
         super().__init__(title_name, color_column, popup, aliases, path)
 
     def get_path(self):
-        if self.year: self.path = self.get_filename()
+        self.path = self.get_filename(self.path)
         
         return self.path
-    
     
     def add_parcel_map(self, path):
         self.color_column = self.year + '_Crop'
@@ -22,8 +22,8 @@ class crop_map(base):
     def __call__(self):
         self.format()
         path = self.get_path()
-        print(path)
-        if path and self.year:
+        # print(path)
+        if path:
             # Making visualization of the village
             self.add_parcel_map(path)
 
