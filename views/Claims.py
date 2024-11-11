@@ -3,6 +3,9 @@ import os
 from main import base
 import numpy as np
 
+st.set_page_config(layout="wide")
+
+
 class claims_map(base):
     def __init__(self, title_name, color_column, popup, aliases, path):
         super().__init__(title_name, color_column, popup, aliases, path)
@@ -44,6 +47,11 @@ class claims_map(base):
         
         if claim:
             path = os.path.join(path, claim.lower())
+
+            if claim == 'Yield_Loss':
+                self.popup = ["Cause of L", 'Claims A_1', 'Yield Loss', 'Yield Lo_1']
+                self.aliases = ['Cause of Loss:', 'Claim Amount:', 'Yield Loss (Kg/ha)', 'Yield Loss Percentage']
+
             self.add_parcel_map(self.get_filename(path), legend_title=claim)
         self.m.to_streamlit(layout = 'wide')
         
@@ -55,20 +63,26 @@ title_name = 'Claims Data'
 path = r'data/claims'
 # colormap = ["#FF0000", "#00FF00", "#0000FF"]
 color_column = 'Cause of L'
+
+
 popup = ["Cause of L", 'Claims A_1']
 aliases = ['Cause of Loss:', 'Claim Amount:']
 
 claims_map(title_name, color_column, popup, aliases, path)()
 
-# st.write("Indemnity Level = 80 Sum Insured = 1.44cr Threshold yield(IU) = 450.72 kg/ha Average threshold yield(IU) = 298.8 kg/ha Estimated Average Threshold yield(parcelwise) = 259.87 kg/ha Estimated Claim(Sum) = ₹40,16,534")
 st.divider()
 
 col = st.columns(3)
-col[0].metric("Indemnity Level:", "80") 
+col[0].metric("Indemnity Level:", "80 %") 
 col[1].metric("Threshold Yield(IU):", "360 kg/ha")
 col[2].metric("Average Acutal Yield(IU):", "298.8 kg/ha")
 
 col2 = st.columns(3)
-col2[0].metric("Estimated Average Actual Yield(Parcelwise):", "259.87 kg/ha")
+# col2[0].metric("Estimated Average Actual Yield(Parcelwise):", "259.87 kg/ha")
+col2[0].metric("Model Yield For IU At Parcel Level", "259.87 kg/ha")
 col2[1].metric("Estimated Claim(Sum):", "₹ 13,70,937")
-col2[2].metric("Suggested Yield By TIP", "189.19 kg/ha") # Need to change this
+# col2[2].metric("Suggested Yield By TIP", "189.19 kg/ha") # Need to change this
+col2[2].metric("Model Yield For IU At Village Level", "189.19 kg/ha") # Need to change this
+
+# st.table(column = , index = None)
+
