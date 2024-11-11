@@ -182,7 +182,7 @@ class base:
     def add_product_path(self, selection):
         self.path = os.path.join(self.path, selection.lower())
 
-    def add_admin(self, idx, col, admin, options):        
+    def add_admin(self, idx, col, admin, options, options_visibility):        
         selection = None
         self.load_keys(f'{admin}_key')
         with col: 
@@ -195,7 +195,7 @@ class base:
                     on_change=base.store_values, 
                     key = f'_{admin}_key', 
                     args=[f"{admin}_key"], 
-                    disabled=not self.options_visibility[idx]
+                    disabled=not options_visibility[idx]
 
                     )
                 
@@ -211,37 +211,58 @@ class base:
     def format(self):
 
         self.set_map()
-        admin_list = ['state', 'district', 'tehsil', 'village', 'year']
+        admin_list_1 = ['state', 'district', 'tehsil', 'village']
         admin_bounds_color = ['#661100', '#6699CC', '#71035e', '#000000']
 
-        grid = st.columns(len(admin_list))
+        admin_list_2 = ['season', 'year']
+
+        grid_1 = st.columns(len(admin_list_1))
+        grid_2 = st.columns(len(admin_list_2))
 
         # Adding admin bounds
         self.admin_path = r'data/admin_bounds/state_boundary'
-        self.options_visibility = [True, False, False, False, False] 
+        self.options_visibility_1 = [True, False, False, False] 
+        self.options_visibility_2 = [False, False]
         
         
-        for idx, admin in enumerate(admin_list):
+        for idx, admin in enumerate(admin_list_1):
 
             if admin == 'state':
                 options = self.get_options_dir(self.path)
                 self.states_opt = options # states_opt is for checking if the options given is available for the current product
-            elif admin == 'year':
-                options = self.get_options_dir(self.path)
-                self.year_opts = options
             else:
                 options = self.get_options_dir(self.admin_path)
 
-            selection = self.add_admin(idx, grid[idx], admin, options)
+            selection = self.add_admin(idx, grid_1[idx], admin, options, options_visibility=self.options_visibility_1)
 
             if selection: # if statments if the streamlit run being selection None
-                if admin=='state' or admin == 'year': 
+                if admin=='state': 
                     self.add_product_path(selection)
                 
-                if admin != 'year':
-                    self.options_visibility[idx+1] = True
-                    self.add_admin_path(selection)
-                    self.add_map(self.get_filename(self.admin_path), admin.title(), admin_bounds_color[idx])
+                if idx<len(self.options_visibility_1)-1:
+                    self.options_visibility_1[idx+1] = True
+
+                else: self.options_visibility_2[idx - (len(self.options_visibility_1)-1)] = True
+                self.add_admin_path(selection)
+                self.add_map(self.get_filename(self.admin_path), admin.title(), admin_bounds_color[idx])
+        
+        for idx, admin in enumerate(admin_list_2):
+            if admin == 'year':
+                options = self.get_options_dir(self.path)
+                self.year_opts = options
+            else:
+                options = ['Kharif']
+
+            selection = self.add_admin(idx, grid_2[idx], admin, options, options_visibility=self.options_visibility_2)
+
+            if selection: # if statments if the streamlit run being selection None
+                if admin == 'year': 
+                    self.add_product_path(selection)
+                
+                if idx<len(self.options_visibility_2)-1:
+                    self.options_visibility_2[idx+1] = True
+                # self.add_admin_path(selection)
+                # self.add_map(self.get_filename(self.admin_path), admin.title(), admin_bounds_color[idx])
         
         self.year = base.get_key_value('year')
     

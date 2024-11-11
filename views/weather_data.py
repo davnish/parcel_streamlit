@@ -3,6 +3,7 @@ import streamlit as st
 from main import base
 import os
 
+st.set_page_config(layout="wide")
 
 class weather_map(base):
     def __init__(self, title_name, color_column, popup, aliases, path, color_dict):
@@ -18,7 +19,7 @@ class weather_map(base):
 
         if self.parameter: 
             self.path = os.path.join(self.path, self.parameter.lower())
-            self.path =  self.get_filename()
+            self.path =  self.get_filename(self.path)
         
         # return self.path
 

@@ -5,6 +5,9 @@ import os
 import glob
 import pandas as pd
 
+st.set_page_config(layout="wide")
+
+
 class chm_map(base):
     def __init__(self, title_name, color_column, popup, aliases, path, legend_order):
         super().__init__(title_name, color_column, popup, aliases, path, legend_order=legend_order)
