@@ -70,23 +70,24 @@ aliases = ['Cause of Loss:', 'Claim Amount:']
 
 claims_map(title_name, color_column, popup, aliases, path)()
 
-st.divider()
+if 'state_key' in st.session_state:
+    if st.session_state['state_key'] == 'Haryana':
+        st.divider()
+        col = st.columns(3)
+        col[0].metric("Indemnity Level:", "80 %") 
+        col[1].metric("Threshold Yield(IU):", "360 kg/ha")
+        col[2].metric("Average Acutal Yield(IU):", "298.8 kg/ha")
 
-col = st.columns(3)
-col[0].metric("Indemnity Level:", "80 %") 
-col[1].metric("Threshold Yield(IU):", "360 kg/ha")
-col[2].metric("Average Acutal Yield(IU):", "298.8 kg/ha")
+        col2 = st.columns(3)
+        # col2[0].metric("Estimated Average Actual Yield(Parcelwise):", "259.87 kg/ha")
+        col2[0].metric("Modeled Yield For IU (At Parcel Level)", "259.87 kg/ha")
+        col2[1].metric("Estimated Claim(Sum):", "₹ 14,00,598")
+        # col2[2].metric("Suggested Yield By TIP", "189.19 kg/ha") # Need to change this
 
-col2 = st.columns(3)
-# col2[0].metric("Estimated Average Actual Yield(Parcelwise):", "259.87 kg/ha")
-col2[0].metric("Model Yield For IU At Parcel Level", "259.87 kg/ha")
-col2[1].metric("Estimated Claim(Sum):", "₹ 14,00,598")
-# col2[2].metric("Suggested Yield By TIP", "189.19 kg/ha") # Need to change this
+        col3 = st.columns(3)
 
-col3 = st.columns(3)
+        col3[0].metric("Modeled Yield For IU (At Village Level)", "189.19 kg/ha") # Need to change this
+        col3[1].metric("Estimated Claim(Sum):", "₹ 49,49,048")
 
-col3[0].metric("Model Yield For IU At Village Level", "189.19 kg/ha") # Need to change this
-col3[1].metric("Estimated Claim(Sum):", "₹ 49,49,048")
-
-# st.table(column = , index = None)
+    # st.table(column = , index = None)
 
