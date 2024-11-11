@@ -3,8 +3,6 @@ import os
 from main import base
 import numpy as np
 
-st.set_page_config(layout="wide")
-
 class claims_map(base):
     def __init__(self, title_name, color_column, popup, aliases, path):
         super().__init__(title_name, color_column, popup, aliases, path)
@@ -46,7 +44,7 @@ class claims_map(base):
         
         if claim:
             path = os.path.join(path, claim.lower())
-            self.add_parcel_map(self.get_filename(path), legend_title='Calamities')
+            self.add_parcel_map(self.get_filename(path), legend_title=claim)
         self.m.to_streamlit(layout = 'wide')
         
         # side bar
@@ -64,9 +62,13 @@ claims_map(title_name, color_column, popup, aliases, path)()
 
 # st.write("Indemnity Level = 80 Sum Insured = 1.44cr Threshold yield(IU) = 450.72 kg/ha Average threshold yield(IU) = 298.8 kg/ha Estimated Average Threshold yield(parcelwise) = 259.87 kg/ha Estimated Claim(Sum) = ₹40,16,534")
 st.divider()
-st.subheader("Indemnity Level = 80", divider = True)
-# st.subheader("Sum Insured = 1.44cr")
-st.subheader("Threshold yield(IU) = 450.72 kg/ha")
-st.subheader("Average threshold yield(IU) = 298.8 kg/ha")
-st.subheader("Estimated Average actual yield(parcelwise) = 259.87 kg/ha")
-st.subheader("Estimated Claim(Sum) = ₹40,16,534")
+
+col = st.columns(3)
+col[0].metric("Indemnity Level:", "80") 
+col[1].metric("Threshold Yield(IU):", "360 kg/ha")
+col[2].metric("Average Acutal Yield(IU):", "298.8 kg/ha")
+
+col2 = st.columns(3)
+col2[0].metric("Estimated Average Actual Yield(Parcelwise):", "259.87 kg/ha")
+col2[1].metric("Estimated Claim(Sum):", "₹ 13,70,937")
+col2[2].metric("Suggested Yield By TIP", "189.19 kg/ha") # Need to change this

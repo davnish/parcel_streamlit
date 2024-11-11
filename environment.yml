@@ -8,5 +8,5 @@ dependencies:
     - geopandas==1.0.1
     - pandas==2.2.2
     - leafmap
-    - streamlit-vis-timeline==0.3.0    
+    - streamlit-vis-timeline
     - setuptools==71.0.4  

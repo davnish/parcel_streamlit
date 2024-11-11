@@ -2,7 +2,6 @@ import streamlit as st
 from main import base
 import os
 
-st.set_page_config(layout="wide")
 
 class yield_map(base):
     def __init__(self, title_name, color_column, popup, aliases, path, legend_order):
@@ -30,7 +29,7 @@ class yield_map(base):
         self.m.to_streamlit(layout = 'wide')
 
 
-title_name = 'Yield Map'
+title_name = 'Yield Prediction'
 # colormap = ["#FF0000", "#00FF00", "#0000FF"]
 path = r'data/yield'
 color_column = 'yie_cate'

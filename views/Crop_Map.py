@@ -1,5 +1,6 @@
 import streamlit as st
 from main import base
+
 st.set_page_config(layout="wide")
 
 class crop_map(base):

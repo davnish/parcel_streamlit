@@ -3,22 +3,44 @@ import geopandas as gpd
 import leafmap.foliumap as leafmap
 import os
 import glob
+import leafmap.colormaps as cm
 
 
 class base:
     def __init__(self, title_name, color_column, popup, 
                  aliases, path, legend_order = None, color_dict = None):
         
-        self.hex = {'red':'#ff0000', 'green':'#00FF00' , 'blue':'#0000FF', 'yellow': '#FFFF00', 'orange': '#ffa500', 'black': '#000000', 'brown':'#5C4033', 'pink':'#FFC0CB'}
+        self.hex = {'red':'#ff0000', 'green':'#00FF00' , 'blue':'#0000FF', 'yellow': '#FFFF00', 
+                    'orange': '#ffa500', 'black': '#000000', 'brown':'#5C4033', 'pink':'#FFC0CB', 'light_green': '#D1FFBD', 'dark_green': '#006400'}
+        
+        # self.crop_color_pallete = cm.get_palette("tab20", n_class=20)
+        # print(self.crop_color_pallete)
 
         if color_dict is None:
-            self.color_dict = {'Low': 'red', 'High': 'green', 'Healthy': 'green', 'Moderate': 'blue', 
-              'Blackgram': 'blue', 'Paddy': 'yellow', 'Soybean': 'green', 'No Claim': 'blue', 
-              'No Data': 'black', 'Prevented Sowing': 'yellow', 'Yield Loss': 'red', 
-              'Cotton': 'pink', 'Pearl Millet': 'brown', 'No crop': 'black', 'No': 'brown' , 
-              'Pre-Harvest Loss': 'yellow', 'Localised Claim(Pest)': 'yellow', 'Claim data': 'yellow', 'No Calamity':'brown', 'Harvested': 'pink'}
+            crop_colors = {'Blackgram': 'blue', 'Paddy': 'yellow', 'Soybean': 'green',  'Cotton': 'pink', 
+                           'Pearl Millet': 'brown', 'No crop': 'black'}
+            # crops = ['Blackgram', 'Paddy', 'yellow', 'Soybean', 'Cotton', 'Pearl Millet', 'No crop']
+
+            # crop_colors = {crop: self.crop_color_pallete[idx] for idx, crop in enumerate(crops)}
+            # print(crop_colors)
+            
+            crop_health = {'Low': 'light_green', 'High': 'dark_green', 'Healthy': 'dark_green', 'Moderate': 'green', 'Harvested':'brown'}
+            
+            claims = {'No Claim': 'blue', 'No Data': 'black', 
+                      'Prevented Sowing': 'yellow', 
+                      'Yield Loss': 'red', 
+                      'No': 'brown', 
+                      'Pre-Harvest Loss': 'yellow', 
+                      'Localised Claim(Pest)': 'yellow', 
+                      'Claim data': 'yellow', 
+                      'No Calamity':'brown', 
+                      'Inundation': 'orange'}
+            
+            self.color_dict ={**crop_colors, **crop_health, **claims}
         else:
             self.color_dict = color_dict
+
+        # print(self.color_dict)
         
         # for i in self.color_dict.keys():
         #     self.color_dict[i] = hex[self.color_dict[i]]
@@ -34,10 +56,10 @@ class base:
         # else: self.colormap = cm.get_palette("Paired")
         # print(self.colormap) 
 
-        logo_path = os.path.join("misc", "logo", "file-removebg-preview.png")
-        sidebar_path = os.path.join("misc", "logo", "file-removebg-preview.png")
+        logo_path = os.path.join("misc", "logo", "image.png")
+        sidebar_path = os.path.join("misc", "logo", "agronomiq.png")
 
-        st.logo(sidebar_path, icon_image=logo_path)
+        st.logo(sidebar_path, icon_image=logo_path, size = 'large')
         st.sidebar.image(logo_path)
 
         st.title(f'{title_name}')
@@ -66,7 +88,7 @@ class base:
         self.m.set_center(lat=gdf.geometry.centroid.y.mean(), lon=gdf.geometry.centroid.x.mean(), zoom=10)
         
     # This function is for read parcel amp
-    def add_parcel_map(self ,path, legend_title=None):
+    def add_parcel_map(self ,path, legend_title=None, crop_type=None):
         self.gdf = self.get_data(path)
         gdf_idx = self.gdf[self.color_column]
 
@@ -84,17 +106,20 @@ class base:
             "weight": 1,
             "fillOpacity": 1,
         }
+
+        if crop_type:
+            self.gdf  = self.gdf[self.gdf[f'{self.year}_Crop'] == crop_type]
         
         if self.popup and self.aliases:
             for name, col in zip(self.aliases, self.popup):
                 self.gdf.rename(columns = {col:name}, inplace = True)
-            self.gdf = self.gdf.loc[:, [*self.aliases, 'geometry']]
+            self.gdf = self.gdf.loc[:, [*self.aliases ,'geometry']]
         
 
         self.m.add_gdf(self.gdf, 
-                       layer_name = f"{self.title_name}", zoom_on_click=True, 
-                       style_function=style_function, 
-                       highlight_function = lambda x: {'weight': 3, 'color': 'red'})
+                        layer_name = f"{self.title_name}", zoom_on_click=True, 
+                        style_function=style_function, 
+                        highlight_function = lambda x: {'weight': 3, 'color': 'red'})
         
         if legend_title:
 
@@ -235,7 +260,7 @@ crop_map = st.Page(
 
 yield_map = st.Page(
     page = "views/Yield.py",
-    title = "Yield Map",
+    title = "Yield Prediction",
     icon = "🌾",
 )
 

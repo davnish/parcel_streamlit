@@ -2,9 +2,6 @@ import pandas as pd
 import streamlit as st
 from main import base
 
-
-st.set_page_config(layout="wide")
-
 class sowing_map(base):
     def __init__(self, title_name, color_column, popup, aliases, path, color_dict):
         super().__init__(title_name, color_column, popup, aliases, path, color_dict=color_dict)

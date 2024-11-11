@@ -4,8 +4,6 @@ from main import base
 import os
 
 
-st.set_page_config(layout="wide")
-
 class weather_map(base):
     def __init__(self, title_name, color_column, popup, aliases, path, color_dict):
         super().__init__(title_name, color_column, popup, aliases, path, color_dict=color_dict)
