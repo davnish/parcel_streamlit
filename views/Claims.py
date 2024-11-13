@@ -2,6 +2,7 @@ import streamlit as st
 import os
 from main import base
 import numpy as np
+import pandas as pd
 
 st.set_page_config(layout="wide")
 
@@ -26,17 +27,17 @@ class claims_map(base):
         path = self.get_path()
         # print(path)
 
-        if 'claims_radio_visibility' not in st.session_state:
+        if 'claims_radio_visibility' not in st.session_state or not st.session_state['crop_type']:
             st.session_state['claims_radio_visibility'] = True
 
         loss_list = ["Localised_Calamities", "Yield_Loss", "Prevented_Sowing", "Crop_Loss"]
 
-
         index = None
-        if self.crop_type:
+        if st.session_state['crop_type']:
             loss_list_have = self.get_options_dir(path)
             index = np.isin(loss_list, loss_list_have)
             index = int(np.where(index == True)[0][0])
+            self.del_key('claims_radio_visibility')
             st.session_state['claims_radio_visibility'] = False
             
         claim = st.sidebar.radio("Select which data to see:", loss_list, index = index, disabled = st.session_state.claims_radio_visibility)
@@ -61,7 +62,6 @@ class claims_map(base):
 
 title_name = 'Claims Data'
 path = r'data/claims'
-# colormap = ["#FF0000", "#00FF00", "#0000FF"]
 color_column = 'Cause of L'
 
 
@@ -73,21 +73,44 @@ claims_map(title_name, color_column, popup, aliases, path)()
 if 'state_key' in st.session_state:
     if st.session_state['state_key'] == 'Haryana':
         st.divider()
-        col = st.columns(3)
-        col[0].metric("Indemnity Level:", "80 %") 
-        col[1].metric("Threshold Yield(IU):", "360 kg/ha")
-        col[2].metric("Average Acutal Yield(IU):", "298.8 kg/ha")
+        col = st.columns(4)
+        # col[0].metric("Indemnity Level:", "80 %") 
+        # col[1].metric("Threshold Yield(IU):", "360 kg/ha")
+        # col[3].metric("Threshold Yield(IU):", "360 kg/ha")
 
-        col2 = st.columns(3)
-        # col2[0].metric("Estimated Average Actual Yield(Parcelwise):", "259.87 kg/ha")
-        col2[0].metric("Modeled Yield For IU (At Parcel Level)", "259.87 kg/ha")
-        col2[1].metric("Estimated Claim(Sum):", "₹ 14,00,598")
+        with col[3]: st.write("Threshold Yield(IU): 360 kg/ha")
+            # st.markdown("<p style='font-size:20px;'>360 kg/ha</p>",unsafe_allow_html=True)
+        # col[2].metric("Average Acutal Yield(IU):", "298.8 kg/ha")
+
+        # col2 = st.columns(3)
+        # # col2[0].metric("Estimated Average Actual Yield(Parcelwise):", "259.87 kg/ha")
+        # col2[0].metric("Modeled Yield For IU (At Parcel Level)", "259.87 kg/ha")
+        # col2[1].metric("Estimated Claim(Sum):", "₹ 14,00,598")
         # col2[2].metric("Suggested Yield By TIP", "189.19 kg/ha") # Need to change this
 
-        col3 = st.columns(3)
+        # col3 = st.columns(3)
 
-        col3[0].metric("Modeled Yield For IU (At Village Level)", "189.19 kg/ha") # Need to change this
-        col3[1].metric("Estimated Claim(Sum):", "₹ 49,49,048")
+        # col3[0].metric("Modeled Yield For IU (At Village Level)", "189.19 kg/ha") # Need to change this
+        # col3[1].metric("Estimated Claim(Sum):", "₹ 49,49,048")
+
+        with st.container():
+            st.subheader('AgronomIQ:')
+            df = pd.read_csv('data/claims/haryana/2022/cotton/yield_loss/csv/agronomiq.csv')
+            # df = df.style.highlight_null(color= 'black') 
+            # df.style.applymap(lambda x: '' if x==x else 'color: red')
+            # sdf = df.style.set_properties(**{'font-size': '50px'})
+            # df.style.set_properties
+            st.dataframe(df, hide_index=True, use_container_width = True, column_config=None)
+            # st.dataframe(df.style.highlight_max(axis=1, subset = ['Yield Loss Percentage']), hide_index=True, use_container_width = True, column_config=None)
+
+            st.subheader('PMFBY:')
+
+            df = pd.read_csv('data/claims/haryana/2022/cotton/yield_loss/csv/pmfby.csv')
+            # df = df.style.highlight(color= 'black') 
+            # df.style.applymap(lambda x: '' if x==x else 'color: red', )
+            st.dataframe(df, hide_index=True, use_container_width = True)
+            
+
 
     # st.table(column = , index = None)
 
