@@ -17,8 +17,12 @@ class base:
         # print(self.crop_color_pallete)
 
         if color_dict is None:
-            crop_colors = {'Blackgram': 'blue', 'Paddy': 'yellow', 'Soybean': 'green',  'Cotton': 'pink', 
-                           'Pearl Millet': 'brown', 'No crop': 'black'}
+            crop_colors = {'Blackgram': 'blue', 
+                'Paddy': 'yellow', 
+                'Soybean': 'green',  
+                'Cotton': 'pink', 
+                'Pearl Millet': 'brown', 
+                'No crop': 'black'}
             # crops = ['Blackgram', 'Paddy', 'yellow', 'Soybean', 'Cotton', 'Pearl Millet', 'No crop']
 
             # crop_colors = {crop: self.crop_color_pallete[idx] for idx, crop in enumerate(crops)}
@@ -26,16 +30,20 @@ class base:
             
             crop_health = {'Low': 'light_green', 'High': 'dark_green', 'Healthy': 'dark_green', 'Moderate': 'green', 'Harvested':'brown'}
             
-            claims = {'No Claim': 'green', 'No Data': 'black', 
-                      'Prevented Sowing': 'yellow', 
-                      'Yield Loss': 'red', 
-                      'No': 'brown', 
-                      'Pre-Harvest Loss': 'yellow', 
-                      'Localised Claim(Pest)': 'yellow', 
-                      'Claim data': 'yellow', 
-                      'No Calamity':'brown', 
-                      'Inundation': 'orange',
-                      'Claim':'red'}
+            claims = {
+                'No Claim': 'green', 
+                'No Data': 'black', 
+                'Prevented Sowing': 'yellow', 
+                'Yield Loss': 'red', 
+                'Yield loss': 'red', 
+                'NoYield loss': 'green',
+                'No': 'brown', 
+                'Pre-Harvest Loss': 'yellow', 
+                'Localised Claim(Pest)': 'yellow', 
+                'Claim data': 'yellow', 
+                'No Calamity':'brown', 
+                'Inundation': 'orange',
+                'Claim':'red'}
             
             self.color_dict ={**crop_colors, **crop_health, **claims}
         else:
@@ -161,7 +169,7 @@ class base:
     def load_keys(self, key):
         if key in st.session_state:
             if key == 'state_key':
-                if st.session_state[key] in self.states_opt:
+                if st.session_state[key] in self.states_opt: # This condition is to check if the state doesnt exists in the key it will delete all the related fields
                     st.session_state['_'+key] = st.session_state[key]
                 else: 
                     base.del_key(key)
