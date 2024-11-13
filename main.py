@@ -26,7 +26,7 @@ class base:
             
             crop_health = {'Low': 'light_green', 'High': 'dark_green', 'Healthy': 'dark_green', 'Moderate': 'green', 'Harvested':'brown'}
             
-            claims = {'No Claim': 'blue', 'No Data': 'black', 
+            claims = {'No Claim': 'green', 'No Data': 'black', 
                       'Prevented Sowing': 'yellow', 
                       'Yield Loss': 'red', 
                       'No': 'brown', 
@@ -34,7 +34,8 @@ class base:
                       'Localised Claim(Pest)': 'yellow', 
                       'Claim data': 'yellow', 
                       'No Calamity':'brown', 
-                      'Inundation': 'orange'}
+                      'Inundation': 'orange',
+                      'Claim':'red'}
             
             self.color_dict ={**crop_colors, **crop_health, **claims}
         else:
