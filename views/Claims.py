@@ -30,7 +30,7 @@ class claims_map(base):
         if 'claims_radio_visibility' not in st.session_state or not st.session_state['crop_type']:
             st.session_state['claims_radio_visibility'] = True
 
-        loss_list = ["Localised_Calamities", "Yield_Loss", "Prevented_Sowing", "Crop_Loss"]
+        loss_list = ["Yield_Loss", "Localised_Calamities", "Prevented_Sowing", "Crop_Loss"]
 
         index = None
         if st.session_state['crop_type']:
@@ -40,7 +40,7 @@ class claims_map(base):
             self.del_key('claims_radio_visibility')
             st.session_state['claims_radio_visibility'] = False
             
-        claim = st.sidebar.radio("Select which data to see:", loss_list, index = index, disabled = st.session_state.claims_radio_visibility)
+        claim = st.sidebar.radio("Select which data to see:", loss_list, index = index, disabled = st.session_state.claims_radio_visibility, key='claim')
         
         if claim:
             if claim not in loss_list_have:
@@ -70,7 +70,7 @@ aliases = ['Cause of Loss:', 'Claim Amount:']
 
 claims_map(title_name, color_column, popup, aliases, path)()
 
-if 'state_key' in st.session_state:
+if 'state_key' in st.session_state and st.session_state['claim'] == 'Yield_Loss':
     if st.session_state['state_key'] == 'Haryana':
         st.divider()
         col = st.columns(4)
