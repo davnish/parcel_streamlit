@@ -51,7 +51,7 @@ class claims_map(base):
 
             if claim == 'Yield_Loss':
                 self.popup = ["Cause of L", 'Claims A_1', 'Yield Loss', 'Yield Lo_1']
-                self.aliases = ['Cause of Loss:', 'Claim Amount:', 'Yield Loss (Kg/ha)', 'Yield Loss Percentage']
+                self.aliases = ['Type of Claim:', 'Claim Amount:', 'Yield Loss (Kg/ha)', 'Yield Loss Percentage']
 
             self.add_parcel_map(self.get_filename(path), legend_title=claim)
         self.m.to_streamlit(layout = 'wide')
