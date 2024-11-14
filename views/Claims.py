@@ -99,15 +99,27 @@ if 'state_key' in st.session_state and st.session_state['claim'] == 'Yield_Loss'
                 st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True) 
 
             st.subheader('AgronomIQ:')
-            df = pd.read_csv('data/claims/haryana/2022/cotton/yield_loss/csv/agronomiq.csv')
+            # df = pd.read_csv('data/claims/haryana/2022/cotton/yield_loss/csv/agronomiq.csv')
 
-            st.table(df)
+            # st.table(df)
+            svg_icon = """<svg xmlns="http://www.w3.org/2000/svg" height="20" width="15" viewBox="0 0 384 600"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path fill="#11ff00" d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>"""
+            table_html = f"""<table data-testid="stTableStyledTable" class="st-emotion-cache-zuelfj e1q9reml3"><thead><tr><th class="blank st-emotion-cache-c34i5s e1q9reml1">&nbsp;</th><th scope="col" class="col_heading level0 col0 st-emotion-cache-c34i5s e1q9reml1" style="text-align: left;">Modeled Average Yield for IU (Parcel Level)</th><th scope="col" class="col_heading level0 col1 st-emotion-cache-c34i5s e1q9reml1" style="text-align: left;">Yield Loss Percentage</th><th scope="col" class="col_heading level0 col2 st-emotion-cache-c34i5s e1q9reml1" style="text-align: left;">Claim Amount (Estimated)</th></tr></thead><tbody><tr><th scope="row" class="row_heading level0 row0 st-emotion-cache-c34i5s e1q9reml1">0</th><td class="st-emotion-cache-4sszyo e1q9reml2" style="text-align: left;">319.621 Kg/ha</td><td class="st-emotion-cache-4sszyo e1q9reml2" style="text-align: left;">13.48%</td><td class="st-emotion-cache-4sszyo e1q9reml2" style="text-align: left;">
+            19.32 Lakhs ({svg_icon} 5.41)</td></tr></tbody></table>"""
+            st.markdown(table_html, unsafe_allow_html=True)
 
             st.subheader('PMFBY:')
             df = pd.read_csv('data/claims/haryana/2022/cotton/yield_loss/csv/pmfby.csv')
 
             st.table(df)
-            
+
+        # col3 = st.columns(3)
+        # col3[1].metric("Estimated Claim(Sum):", "₹ 49,49,048", delta='5', delta_color='normal')
+        
+        # svg_icon = """<svg xmlns="http://www.w3.org/2000/svg" height="20" width="15" viewBox="0 0 384 600"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path fill="#11ff00" d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>"""
+        # table_html = f"""<table data-testid="stTableStyledTable" class="st-emotion-cache-zuelfj e1q9reml3"><thead><tr><th class="blank st-emotion-cache-c34i5s e1q9reml1">&nbsp;</th><th scope="col" class="col_heading level0 col0 st-emotion-cache-c34i5s e1q9reml1" style="text-align: left;">Modeled Average Yield for IU (Parcel Level)</th><th scope="col" class="col_heading level0 col1 st-emotion-cache-c34i5s e1q9reml1" style="text-align: left;">Yield Loss Percentage</th><th scope="col" class="col_heading level0 col2 st-emotion-cache-c34i5s e1q9reml1" style="text-align: left;">Claim Amount (Estimated)</th></tr></thead><tbody><tr><th scope="row" class="row_heading level0 row0 st-emotion-cache-c34i5s e1q9reml1">0</th><td class="st-emotion-cache-4sszyo e1q9reml2" style="text-align: left;">319.621 Kg/ha</td><td class="st-emotion-cache-4sszyo e1q9reml2" style="text-align: left;">13.48%</td><td class="st-emotion-cache-4sszyo e1q9reml2" style="text-align: left;">
+        # 19.32 Lakhs ({svg_icon} 5.41)</td></tr></tbody></table>"""
+        # st.markdown(table_html, unsafe_allow_html=True)
+
 
 
     # st.table(column = , index = None)

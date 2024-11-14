@@ -13,8 +13,6 @@ class base:
         self.hex = {'red':'#ff0000', 'green':'#00FF00' , 'blue':'#0000FF', 'yellow': '#FFFF00', 
                     'orange': '#ffa500', 'black': '#000000', 'brown':'#5C4033', 'pink':'#FFC0CB', 'light_green': '#D1FFBD', 'dark_green': '#006400'}
         
-        # self.crop_color_pallete = cm.get_palette("tab20", n_class=20)
-        # print(self.crop_color_pallete)
 
         if color_dict is None:
             crop_colors = {'Blackgram': 'blue', 
