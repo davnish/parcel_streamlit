@@ -94,21 +94,19 @@ if 'state_key' in st.session_state and st.session_state['claim'] == 'Yield_Loss'
         # col3[1].metric("Estimated Claim(Sum):", "₹ 49,49,048")
 
         with st.container():
+
+            with open('style.css') as f:
+                st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True) 
+
             st.subheader('AgronomIQ:')
             df = pd.read_csv('data/claims/haryana/2022/cotton/yield_loss/csv/agronomiq.csv')
-            # df = df.style.highlight_null(color= 'black') 
-            # df.style.applymap(lambda x: '' if x==x else 'color: red')
-            # sdf = df.style.set_properties(**{'font-size': '50px'})
-            # df.style.set_properties
-            st.dataframe(df, hide_index=True, use_container_width = True, column_config=None)
-            # st.dataframe(df.style.highlight_max(axis=1, subset = ['Yield Loss Percentage']), hide_index=True, use_container_width = True, column_config=None)
+
+            st.table(df)
 
             st.subheader('PMFBY:')
-
             df = pd.read_csv('data/claims/haryana/2022/cotton/yield_loss/csv/pmfby.csv')
-            # df = df.style.highlight(color= 'black') 
-            # df.style.applymap(lambda x: '' if x==x else 'color: red', )
-            st.dataframe(df, hide_index=True, use_container_width = True)
+
+            st.table(df)
             
 
 

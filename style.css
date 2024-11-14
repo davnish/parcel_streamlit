@@ -1,0 +1,12 @@
+table, th, td {
+    font-size: x-large;
+    width: 200px;
+    /* height: 100px; */
+    }
+
+tbody th {display:none}.blank{
+    display: none;
+}
+
+
+
