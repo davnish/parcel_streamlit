@@ -10,7 +10,7 @@ class yield_map(base):
 
     def get_path(self):
         crops = []
-        if self.year: crops.extend(self.get_options_dir(self.path))
+        if self.year: crops.extend(self.get_options_dir())
         self.crop_type = st.selectbox("Select your Crop", crops, index = None, placeholder='Select')
 
         if self.crop_type: 

@@ -3,8 +3,7 @@ import geopandas as gpd
 import leafmap.foliumap as leafmap
 import os
 import glob
-import leafmap.colormaps as cm
-
+import random
 
 class base:
     def __init__(self, title_name, color_column, popup, 
@@ -23,13 +22,8 @@ class base:
                 'Cotton': 'pink', 
                 'Pearl Millet': 'brown', 
                 'No crop': 'black'}
-            # crops = ['Blackgram', 'Paddy', 'yellow', 'Soybean', 'Cotton', 'Pearl Millet', 'No crop']
 
-            # crop_colors = {crop: self.crop_color_pallete[idx] for idx, crop in enumerate(crops)}
-            # print(crop_colors)
-            
-            crop_health = {'Low': 'light_green', 'High': 'dark_green', 'Healthy': 'dark_green', 'Moderate': 'green', 'Harvested':'brown'}
-            
+            crop_health = {'Low': 'light_green', 'Healthy': 'dark_green', 'High': 'dark_green','Moderate': 'green', 'Harvested':'brown'}
             claims = {
                 'No Claim': 'green', 
                 'No Data': 'black', 
@@ -49,21 +43,12 @@ class base:
         else:
             self.color_dict = color_dict
 
-        # print(self.color_dict)
-        
-        # for i in self.color_dict.keys():
-        #     self.color_dict[i] = hex[self.color_dict[i]]
-        
-        # print(color_dict)
         self.title_name = title_name
         self.color_column = color_column
         self.popup = popup
         self.aliases = aliases
         self.legend_order = legend_order
         self.path = path
-        # if colormap is not None: self.colormap = colormap
-        # else: self.colormap = cm.get_palette("Paired")
-        # print(self.colormap) 
 
         logo_path = os.path.join("misc", "logo", "image.png")
         sidebar_path = os.path.join("misc", "logo", "agronomiq.png")
@@ -100,6 +85,10 @@ class base:
     def add_parcel_map(self ,path, legend_title=None, crop_type=None):
         self.gdf = self.get_data(path)
         gdf_idx = self.gdf[self.color_column]
+
+        for cate in gdf_idx.unique():
+            if cate not in self.color_dict.keys():
+                self.color_dict[cate] = random.choice(list(self.hex.keys()))
 
         if self.legend_order is None:
             legend_dict = {cate : self.hex[self.color_dict[cate]] for cate in sorted(gdf_idx.unique())}
@@ -144,7 +133,16 @@ class base:
         self.m = leafmap.Map(location = [22.176,78.410], zoom_start=5, draw_control=None)
         self.m.add_basemap("SATELLITE")
     
-    def get_options_dir(self, path):
+    def get_options_dir(self, admin=None):
+        if admin == None:
+            path = self.path
+        elif admin == 'state' or admin == 'year':
+            path = self.path
+        elif admin == 'season':
+            return ['Kharif']
+        else:
+            path = self.admin_path
+        
         return sorted([i.title() for i in os.listdir(path) if os.path.isdir(os.path.join(path, i))]) 
         # return sorted([i.title() for i in os.listdir(path)]) # This is edited to remove 2023 data
 
@@ -160,6 +158,7 @@ class base:
             base.del_key('tehsil_key')
             base.del_key('village_key')
             base.del_key('year_key')
+            base.del_key('season_key')
             # base.del_key('district_key')
 
 
@@ -169,7 +168,7 @@ class base:
     def load_keys(self, key):
         if key in st.session_state:
             if key == 'state_key':
-                if st.session_state[key] in self.states_opt: # This condition is to check if the state doesnt exists in the key it will delete all the related fields
+                if st.session_state[key] in self.options: # This condition is to check if the state doesnt exists in the key it will delete all the related fields
                     st.session_state['_'+key] = st.session_state[key]
                 else: 
                     base.del_key(key)
@@ -178,10 +177,11 @@ class base:
                     base.del_key('village_key')
                     base.del_key('year_key')
             elif key == 'year_key':
-                if st.session_state[key] in self.year_opts:
+                if st.session_state[key] in self.options:
                     st.session_state['_'+key] = st.session_state[key]
                 else: 
                     base.del_key(key)
+                    base.del_key('season_key')
 
             else: st.session_state['_'+key] = st.session_state[key]
     
@@ -216,6 +216,8 @@ class base:
         if key in st.session_state:
             return st.session_state[key]
         
+        # return None
+        
     
     def format(self):
 
@@ -236,13 +238,9 @@ class base:
         
         for idx, admin in enumerate(admin_list_1):
 
-            if admin == 'state':
-                options = self.get_options_dir(self.path)
-                self.states_opt = options # states_opt is for checking if the options given is available for the current product
-            else:
-                options = self.get_options_dir(self.admin_path)
+            self.options = self.get_options_dir(admin)
 
-            selection = self.add_admin(idx, grid_1[idx], admin, options, options_visibility=self.options_visibility_1)
+            selection = self.add_admin(idx, grid_1[idx], admin, self.options, options_visibility=self.options_visibility_1)
 
             if selection: # if statments if the streamlit run being selection None
                 if admin=='state': 
@@ -256,22 +254,16 @@ class base:
                 self.add_map(self.get_filename(self.admin_path), admin.title(), admin_bounds_color[idx])
         
         for idx, admin in enumerate(admin_list_2):
-            if admin == 'year':
-                options = self.get_options_dir(self.path)
-                self.year_opts = options
-            else:
-                options = ['Kharif']
+            self.options = self.get_options_dir(admin)
 
-            selection = self.add_admin(idx, grid_2[idx], admin, options, options_visibility=self.options_visibility_2)
+            selection = self.add_admin(idx, grid_2[idx], admin, self.options, options_visibility=self.options_visibility_2)
 
             if selection: # if statments if the streamlit run being selection None
                 if admin == 'year': 
-                    self.add_product_path(selection)
+                    self.add_product_path(base.get_key_value('year'))
                 
                 if idx<len(self.options_visibility_2)-1:
                     self.options_visibility_2[idx+1] = True
-                # self.add_admin_path(selection)
-                # self.add_map(self.get_filename(self.admin_path), admin.title(), admin_bounds_color[idx])
         
         self.year = base.get_key_value('year')
     

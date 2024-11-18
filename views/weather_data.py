@@ -14,7 +14,7 @@ class weather_map(base):
 
         parameter = []
         # print(self.path)
-        if self.year: parameter = self.get_options_dir(self.path)
+        if self.year: parameter = self.get_options_dir()
         self.parameter = st.selectbox("Select your parameter", parameter, index = None, placeholder='Select')
 
         if self.parameter: 
