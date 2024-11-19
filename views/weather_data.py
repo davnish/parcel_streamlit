@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from main import base
+from util import base
 import os
 
 if 'setting_page' not in st.session_state:

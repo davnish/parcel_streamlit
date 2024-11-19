@@ -1,6 +1,5 @@
-import pandas as pd
 import streamlit as st
-from main import base
+from util import base
 
 if 'setting_page' not in st.session_state:
     st.set_page_config(layout="wide")

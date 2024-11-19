@@ -1,7 +1,5 @@
 import streamlit as st
-from main import base
-
-# if 'set_page_layout' 
+from util import base
 
 if 'setting_page' not in st.session_state:
     st.set_page_config(layout="wide")

@@ -1,5 +1,5 @@
 import streamlit as st
-from main import base
+from util import base
 from streamlit_timeline import st_timeline
 import os
 import glob
