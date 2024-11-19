@@ -86,7 +86,7 @@ def show_tb(th, tr, show_svg = False):
         {th[2]}</th></tr></thead><tbody><tr><th scope="row" class="row_heading level0 row0 st-emotion-cache-c34i5s e1q9reml1">0</th><td class="st-emotion-cache-4sszyo e1q9reml2" style="text-align: left;">
         {tr[0]}</td><td class="st-emotion-cache-4sszyo e1q9reml2" style="text-align: left;">
         {tr[1]}</td><td class="st-emotion-cache-4sszyo e1q9reml2" style="text-align: left;">
-        {tr[2]}, ({svg_icon} {tr[3]}, {tr[4]})</td></tr></tbody></table>"""
+        {tr[2]}, ({svg_icon} {tr[3]} Lakhs, {tr[4]})</td></tr></tbody></table>"""
 
     else:
         table_html = f"""<table data-testid="stTableStyledTable" class="st-emotion-cache-zuelfj e1q9reml3"><thead><tr><th class="blank st-emotion-cache-c34i5s e1q9reml1">&nbsp;</th><th scope="col" class="col_heading level0 col0 st-emotion-cache-c34i5s e1q9reml1" style="text-align: left;">{th[0]}</th><th scope="col" class="col_heading level0 col1 st-emotion-cache-c34i5s e1q9reml1" style="text-align: left;">{th[1]}</th><th scope="col" class="col_heading level0 col2 st-emotion-cache-c34i5s e1q9reml1" style="text-align: left;">{th[2]}</th></tr></thead><tbody><tr><th scope="row" class="row_heading level0 row0 st-emotion-cache-c34i5s e1q9reml1">0</th><td class="st-emotion-cache-4sszyo e1q9reml2" style="text-align: left;">{tr[0]}</td><td class="st-emotion-cache-4sszyo e1q9reml2" style="text-align: left;">{tr[1]}</td><td class="st-emotion-cache-4sszyo e1q9reml2" style="text-align: left;">{tr[2]}</td></tr></tbody></table>"""
@@ -123,7 +123,7 @@ if 'state_key' in st.session_state and 'year_key' in st.session_state and st.ses
         with st.container():
 
             st.subheader('AgronomIQ:')
-            tr_1 = ['446.62 Kg/ha', '16.29%', '	8,12,409 Lakhs', '1.65', '0.16%']
+            tr_1 = ['446.62 Kg/ha', '16.29%', '	8,12,409 Lakhs', '1.65', '16%']
             show_tb(th_1, tr_1, show_svg=True)
 
             st.subheader('PMFBY:')
