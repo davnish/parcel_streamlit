@@ -3,7 +3,9 @@ import streamlit as st
 from main import base
 import os
 
-st.set_page_config(layout="wide")
+if 'setting_page' not in st.session_state:
+    st.set_page_config(layout="wide")
+    st.session_state['setting_page'] = True
 
 class weather_map(base):
     def __init__(self, title_name, color_column, popup, aliases, path, color_dict):

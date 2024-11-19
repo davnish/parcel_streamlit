@@ -1,0 +1,33 @@
+[crop_colors]
+Blackgram = "blue"
+Paddy = "yellow"
+Soybean = "green"
+Cotton = "pink"
+"Pearl Millet" = "brown"
+"No crop" = "black"
+
+[crop_health]
+Low = "light_green"
+Healthy = "dark_green"
+High = "dark_green"
+Moderate = "green"
+Harvested = "brown"
+
+[claims]
+"No Claim" = "green"
+"No Data" = "black"
+"Prevented Sowing" = "yellow"
+"Yield Loss" = "red"
+"Yield loss" = "red"
+"NoYield loss" = "green"
+No = "brown"
+"Pre-Harvest Loss" = "yellow"
+"Localised Claim(Pest)" = "yellow"
+"Claim data" = "yellow"
+"No Calamity" = "brown"
+Inundation = "orange"
+Claim = "red"
+
+[misc]
+"01 June 2024 to 20 June 2024" = "pink"
+"21 June 2024 to 10 July 2024" = "red"

@@ -4,6 +4,7 @@ import leafmap.foliumap as leafmap
 import os
 import glob
 import random
+import toml
 
 class base:
     def __init__(self, title_name, color_column, popup, 
@@ -14,30 +15,9 @@ class base:
         
 
         if color_dict is None:
-            crop_colors = {'Blackgram': 'blue', 
-                'Paddy': 'yellow', 
-                'Soybean': 'green',  
-                'Cotton': 'pink', 
-                'Pearl Millet': 'brown', 
-                'No crop': 'black'}
-
-            crop_health = {'Low': 'light_green', 'Healthy': 'dark_green', 'High': 'dark_green','Moderate': 'green', 'Harvested':'brown'}
-            claims = {
-                'No Claim': 'green', 
-                'No Data': 'black', 
-                'Prevented Sowing': 'yellow', 
-                'Yield Loss': 'red', 
-                'Yield loss': 'red', 
-                'NoYield loss': 'green',
-                'No': 'brown', 
-                'Pre-Harvest Loss': 'yellow', 
-                'Localised Claim(Pest)': 'yellow', 
-                'Claim data': 'yellow', 
-                'No Calamity':'brown', 
-                'Inundation': 'orange',
-                'Claim':'red'}
-            
-            self.color_dict ={**crop_colors, **crop_health, **claims}
+            self.color_dict_toml = toml.load('color_dict.toml')
+        
+            self.color_dict ={**self.color_dict_toml["crop_colors"], **self.color_dict_toml['crop_health'], **self.color_dict_toml['claims'], **self.color_dict_toml['misc']}
         else:
             self.color_dict = color_dict
 
@@ -58,6 +38,14 @@ class base:
 
         if 'selected' not in st.session_state:
             st.session_state['selected'] = False
+        
+    # @staticmethod
+    def save_color_dict(self, cate, color):
+        # color_dict = toml.load('color_dict.toml')
+        self.color_dict_toml['misc'][cate] = color
+
+        with open('color_dict.toml', 'w') as f:
+            toml.dump(self.color_dict_toml, f)
 
     def get_data(self, path):
         # print(path)
@@ -86,7 +74,9 @@ class base:
 
         for cate in gdf_idx.unique():
             if cate not in self.color_dict.keys():
-                self.color_dict[cate] = random.choice(list(self.hex.keys()))
+                color = random.choice(list(self.hex.keys()))
+                self.color_dict[cate] = color
+                self.save_color_dict(cate, color)
 
         if self.legend_order is None:
             legend_dict = {cate : self.hex[self.color_dict[cate]] for cate in sorted(gdf_idx.unique())}

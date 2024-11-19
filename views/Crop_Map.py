@@ -1,7 +1,12 @@
 import streamlit as st
 from main import base
 
-st.set_page_config(layout="wide")
+# if 'set_page_layout' 
+
+if 'setting_page' not in st.session_state:
+    st.set_page_config(layout="wide")
+    st.session_state['setting_page'] = True
+
 
 class crop_map(base):
     def __init__(self, title_name, color_column, popup, aliases, path):

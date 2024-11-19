@@ -5,7 +5,9 @@ import os
 import glob
 import pandas as pd
 
-st.set_page_config(layout="wide")
+if 'setting_page' not in st.session_state:
+    st.set_page_config(layout="wide")
+    st.session_state['setting_page'] = True
 
 
 class chm_map(base):
