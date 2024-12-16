@@ -38,9 +38,15 @@ chm = st.Page(
     title = "Crop Health Monitoring",
     icon = "🌱"
 )
+
+crop_iden = st.Page(
+    page = "views\crop_identification.py",
+    title = "Crop Indentification",
+    icon = "☎️"
+)
 # -- Setting Navigation --
 
-pg = st.navigation(pages = [sowing_status, crop_map, chm, yield_map, claims, weather_data])
+pg = st.navigation(pages = [sowing_status, crop_map, chm, yield_map, claims, weather_data, crop_iden])
 
 # -- Run Nav --
 
