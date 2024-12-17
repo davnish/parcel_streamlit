@@ -13,4 +13,4 @@
 __pycache__/
 .DS_Store
 # vit_b_1/
-vit_b_1/model.safetensors
+# vit_b_1/model.safetensors
