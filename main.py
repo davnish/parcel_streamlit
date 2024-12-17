@@ -40,8 +40,8 @@ chm = st.Page(
 )
 
 crop_iden = st.Page(
-    page = "views\crop_identification.py",
-    title = "Crop Indentification",
+    page = "views/crop_identification.py",
+    title = "Crop Identification",
     icon = "☎️"
 )
 # -- Setting Navigation --
