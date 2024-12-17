@@ -1,0 +1,50 @@
+{
+  "_name_or_path": "google/vit-base-patch16-224-in21k",
+  "architectures": [
+    "ViTForImageClassification"
+  ],
+  "attention_probs_dropout_prob": 0.0,
+  "encoder_stride": 16,
+  "hidden_act": "gelu",
+  "hidden_dropout_prob": 0.0,
+  "hidden_size": 768,
+  "id2label": {
+    "0": "blackgram",
+    "1": "cotton",
+    "10": "tur",
+    "2": "groundnut",
+    "3": "maize",
+    "4": "other",
+    "5": "paddy",
+    "6": "pearlmillet",
+    "7": "sorghum",
+    "8": "soyabean",
+    "9": "sugarcane"
+  },
+  "image_size": 224,
+  "initializer_range": 0.02,
+  "intermediate_size": 3072,
+  "label2id": {
+    "blackgram": "0",
+    "cotton": "1",
+    "groundnut": "2",
+    "maize": "3",
+    "other": "4",
+    "paddy": "5",
+    "pearlmillet": "6",
+    "sorghum": "7",
+    "soyabean": "8",
+    "sugarcane": "9",
+    "tur": "10"
+  },
+  "layer_norm_eps": 1e-12,
+  "model_type": "vit",
+  "num_attention_heads": 12,
+  "num_channels": 3,
+  "num_hidden_layers": 12,
+  "patch_size": 16,
+  "problem_type": "single_label_classification",
+  "qkv_bias": true,
+  "torch_dtype": "float32",
+  "transformers_version": "4.46.3"
+}
