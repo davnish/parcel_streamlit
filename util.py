@@ -222,7 +222,7 @@ class base:
         grid_2 = st.columns(len(admin_list_2))
 
         # Adding admin bounds
-        self.admin_path = r'data/admin_bounds/state_boundary'
+        self.admin_path = os.path.join('data', 'admin_bounds', 'state_boundary')
         self.options_visibility_1 = [True, False, False, False] 
         self.options_visibility_2 = [False, False]
         
@@ -242,6 +242,7 @@ class base:
 
                 else: self.options_visibility_2[idx - (len(self.options_visibility_1)-1)] = True
                 self.add_admin_path(selection)
+                print(self.get_filename(self.admin_path))
                 self.add_map(self.get_filename(self.admin_path), admin.title(), admin_bounds_color[idx])
         
         for idx, admin in enumerate(admin_list_2):

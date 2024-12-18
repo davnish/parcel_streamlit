@@ -1,17 +1,4 @@
 .ipynb_checkpoints
-# gdf.*
-# nagla_dhanoua.*
-# Vidisha_crop_type_final.*
-# parcel_clean_final
-# # claim_losses_results_with_cause_of_loss.csv
-# claim_losses_results_with_cause_of_loss.*
-# mathura_geojson.geojson
-# bhiwani_ajeetpur.*
-# mathura_nagladhanua.*
-# vidisha_bhaunrasa.*
-# *.html
 __pycache__/
 .DS_Store
-# vit_b_1/
-# vit_b_1/model.safetensors
-*.yml
+*.yaml
