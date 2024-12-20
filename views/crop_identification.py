@@ -39,6 +39,7 @@ if option:
         reimg = np.asarray(img)
         # reimg = cv2.resize(reimg, (224, 224), interpolation = cv2.INTER_AREA)
         reimg = Image.fromarray(reimg)
+        
         cls = classifier(reimg)
         st.write(cls)
         # st.image(picture)

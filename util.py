@@ -242,7 +242,7 @@ class base:
 
                 else: self.options_visibility_2[idx - (len(self.options_visibility_1)-1)] = True
                 self.add_admin_path(selection)
-                print(self.get_filename(self.admin_path))
+                # print(self.get_filename(self.admin_path))
                 self.add_map(self.get_filename(self.admin_path), admin.title(), admin_bounds_color[idx])
         
         for idx, admin in enumerate(admin_list_2):
